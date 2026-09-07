@@ -80,10 +80,14 @@ a partir deste item sem promoção explícita para um NEXT dedicado — este ite
 
 SCOPE: nenhum (investigação apenas, sem alteração de código)
 
-STATUS: parcialmente concluído em 2026-09-06 — item 1 resolvido (ver DOT-007:
+STATUS: parcialmente concluído — item 1 resolvido em 2026-09-06 (ver DOT-007:
 git remoto privado https://github.com/Renato-RVF/meizex-grid, promovido de
-LAB-001). Item 2 (RDP/WinRM como transporte de *comando*) continua aberto,
-sem decisão nem investigação adicional ainda.
+LAB-001). Item 2 (transporte de *comando*) investigado em 2026-09-07 pelo
+Codex (GPT-6 Astra) — ver LAB-003: OpenSSH é o candidato preferido, mas a
+porta 22 está fechada nas três máquinas hoje (conexão recusada, sem serviço
+ativo); nenhum piloto autenticado foi executado. Segue sem decisão de
+produção — habilitar SSH no Dell-A exige aprovação explícita do usuário,
+não é uma promoção automática deste achado.
 
 ## NEXT-003 — Validar `git clone` nas duas Dell e rodar o AIR oficial
 
