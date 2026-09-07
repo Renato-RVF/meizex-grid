@@ -80,4 +80,26 @@ a partir deste item sem promoção explícita para um NEXT dedicado — este ite
 
 SCOPE: nenhum (investigação apenas, sem alteração de código)
 
+STATUS: parcialmente concluído em 2026-09-06 — item 1 resolvido (ver DOT-007:
+git remoto privado https://github.com/Renato-RVF/meizex-grid, promovido de
+LAB-001). Item 2 (RDP/WinRM como transporte de *comando*) continua aberto,
+sem decisão nem investigação adicional ainda.
+
+## NEXT-003 — Validar `git clone` nas duas Dell e rodar o AIR oficial
+
+Decorrente de DOT-007. Hoje as três máquinas têm capacidade medida via
+`air_snapshots/standalone_probe.py` (contorno manual do NEXT-001). Com o
+repositório https://github.com/Renato-RVF/meizex-grid disponível, clonar
+nas duas Dell e rodar o pacote `meizex_air` oficial completo
+(`pip install -e .` + `meizex-air probe --detailed` ou
+`python -m meizex_air.cli probe --detailed`), substituindo o standalone por
+uma coleta com os registries de executor/artifact/formula que o standalone
+não cobre.
+
+Critério de conclusão: `git clone` bem-sucedido em Dell-A e Dell-B, e um
+snapshot via CLI oficial (não o standalone) salvo para cada uma, comparável
+ao já existente do Lenovo.
+
+SCOPE: MEIZEX_GRID/air_snapshots/*
+
 STATUS: aberto

@@ -43,5 +43,15 @@ Opções levantadas (nenhuma implementada):
    apontar só para os projetos relevantes ao Grid, não o monorepo inteiro
    com material sensível).
 
-STATUS: experimental — aguardando decisão do usuário sobre qual opção
-promover para NEXT.
+STATUS: promovido para DOT-007 em 2026-09-06 (opção 1, git remoto privado)
+
+SOURCE: LAB-001
+TARGET: DOT-007
+ACTION: PROMOTE
+REASON: usuário já tinha conta GitHub privada em uso ativo (Renato-RVF),
+tornando a opção de menor custo de implementação; demais opções (SMB
+dedicado, Syncthing) exigiriam configurar credencial/ferramenta nova.
+EVIDENCE: repositório https://github.com/Renato-RVF/meizex-grid criado
+(privado) e primeiro push bem-sucedido (commit 6f12b5d, 34 arquivos) em
+2026-09-06.
+ACTOR: human (usuário criou o repo e executou o git push manualmente)

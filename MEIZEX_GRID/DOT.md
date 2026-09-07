@@ -59,6 +59,35 @@ máquina desligada.
 
 STATUS: aceito
 
+## DOT-007 — Distribuição de código: git remoto privado
+
+Promovido de LAB-001 em 2026-09-06. O código do Grid (MEIZEX_GRID +
+pacote meizex_air, não o monorepo `C:\PROJETOS` inteiro) é distribuído às
+três máquinas via repositório git privado:
+
+**https://github.com/Renato-RVF/meizex-grid**
+
+O repositório é um subconjunto isolado, montado manualmente a partir do
+monorepo local (que não tem remoto e não deve ser publicado inteiro — tem
+material sensível misturado, ver MEIZEX_VAULT). Cada atualização relevante
+do MEIZEX_GRID/MEIZEX_AIR precisa ser copiada para esse subconjunto e
+commitada separadamente até existir um processo de sincronização automática
+(não decidido ainda).
+
+Fluxo para as Dell (Dell-A e Dell-B, que não têm o monorepo local):
+
+```powershell
+git clone https://github.com/Renato-RVF/meizex-grid.git
+cd meizex-grid
+# atualizações futuras:
+git pull
+```
+
+Autenticação usa o fluxo padrão do Git (prompt de navegador na primeira vez),
+sem necessidade de digitar senha em texto puro.
+
+STATUS: aceito
+
 ## DOT-006 — Papel dos componentes do ecossistema no Grid
 
 Encaixe investigado e aceito como direção, sem implementação de integração
