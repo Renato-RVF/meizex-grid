@@ -1,0 +1,39 @@
+{
+  "schema_version": "0.7",
+  "timestamp_utc": "2026-09-07T22:28:21.533596+00:00",
+  "machine": { "hostname": "Dell-B", "architecture": "AMD64" },
+  "os": { "name": "Windows", "version": "10.0.26200" },
+  "cpu": { "logical_processors": 12, "physical_cores": 10, "usage_percent": 16.7 },
+  "memory": {
+    "total_bytes": 34029125632,
+    "available_bytes": 17598005248,
+    "used_bytes": 16431120384,
+    "used_percent": 48.3
+  },
+  "effective_capacity": {
+    "memory": {
+      "physical_total_bytes": 34029125632,
+      "currently_available_bytes": 17598005248,
+      "safety_reserve_bytes": 2147483648,
+      "effective_safe_available_bytes": 15450521600
+    }
+  },
+  "resources": [
+    {
+      "resource_id": "python_current",
+      "confidence": "CONFIRMED",
+      "executable_path": "C:\\Users\\usuario\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+      "version": "3.13.3"
+    },
+    {
+      "resource_id": "powershell_sys",
+      "confidence": "CONFIRMED",
+      "executable_path": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.EXE"
+    },
+    { "resource_id": "ollama_local", "confidence": "NOT_FOUND" },
+    { "resource_id": "lm_studio_local", "confidence": "NOT_FOUND" },
+    { "resource_id": "llama_cpp_local", "confidence": "NOT_FOUND" },
+    { "resource_id": "onnx_runtime_local", "confidence": "NOT_FOUND" }
+  ],
+  "nota": "PRIMEIRA EXECUCAO REMOTA REAL DO GRID (NEXT-005): coletado via SSH autenticado por chave publica, do Lenovo (192.168.15.98) para o Dell-B (192.168.15.42), executando 'python -m meizex_air.cli probe --detailed' com a conta restrita 'meizexgrid' (sem privilegio administrativo). Comando completo usado no cliente: ssh -i meizex_grid_dell_b meizexgrid@192.168.15.42 \"cd C:\\Users\\usuario\\meizex-grid\\MEIZEX_AIR && set PYTHONPATH=src && C:\\Users\\usuario\\AppData\\Local\\Programs\\Python\\Python313\\python.exe -m meizex_air.cli probe --detailed\". Precisou de caminho completo do Python porque a conta meizexgrid nao tem o PATH configurado do usuario 'usuario'. Snapshot truncado aqui (ver dell-b_official_192.168.15.42.json para a coleta completa anterior, via git clone local); este arquivo documenta a via de acesso, nao substitui a coleta anterior como inventario de capacidade."
+}

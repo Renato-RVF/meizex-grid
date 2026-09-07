@@ -134,7 +134,85 @@ registrada no PORT_REGISTRY.
 SCOPE: MEIZEX_GRID/*, configuração local do Dell-A (fora do repositório —
 documentar o que foi feito na máquina, não é código versionável)
 
-STATUS: aberto, aprovado para execução
+STATUS: aprovado para execução, bloqueado em 2026-09-07 no acesso inicial
+ao Dell-A. SSH :22 recusado; sessão atual sem controle local/RDP do destino.
+Ver atualização de LAB-003. Nenhuma configuração alterada; teste de aceitação
+ainda não realizado.
+
+## NEXT-005 — Piloto de OpenSSH no Dell-B (aprovado pelo usuário, em paralelo ao Dell-A)
+
+SOURCE: NEXT-004
+TARGET: NEXT-005
+ACTION: PROMOTE (extensão de escopo, não nova investigação — mesmas
+condições de LAB-003/NEXT-004, aplicadas a um segundo nó)
+REASON: usuário pediu explicitamente para não esperar o Dell-A terminar e
+priorizar o Dell-B, por ser o nó com mais folga real de capacidade
+(DOT-005/NEXT-001: ~17.3GB efetivos livres, o maior das três máquinas).
+EVIDENCE: "Não podemos ver se B funciona? Ele é o mais importante!"
+(2026-09-07). Isso reverte a decisão anterior de escopo sequencial (só
+Dell-A por vez) registrada em NEXT-004.
+ACTOR: human (Renato)
+
+Escopo idêntico ao NEXT-004, aplicado ao Dell-B (192.168.15.42) em vez do
+Dell-A: verificar/instalar OpenSSH Server, conta sem privilégio
+administrativo dedicada, autenticação só por chave pública, firewall
+restrito ao IP do Lenovo (192.168.15.98), registrar porta no
+PORT_REGISTRY antes de abrir, teste de aceitação (`hostname` +
+`python -m meizex_air.cli probe --detailed`).
+
+Mesmos limites do NEXT-004: sem WinRM, sem integração MRW/dispatch real,
+sem automação sem confirmação humana por execução.
+
+SCOPE: MEIZEX_GRID/*, configuração local do Dell-B (fora do repositório)
+
+STATUS: concluído em 2026-09-07 — PRIMEIRA EXECUÇÃO REMOTA REAL DO GRID
+
+Resultado: [air_snapshots/dell-b_via_ssh_192.168.15.42.json](air_snapshots/dell-b_via_ssh_192.168.15.42.json).
+Do Lenovo, `ssh` autenticado por chave pública até o Dell-B, executando
+`python -m meizex_air.cli probe --detailed` com sucesso via conta restrita
+`meizexgrid` (sem privilégio administrativo, confirmado fora do grupo
+Administrators via SID `S-1-5-32-544`). Firewall restrito ao IP do Lenovo
+(`Set-NetFirewallRule -RemoteAddress 192.168.15.98`). Porta registrada em
+PORT_REGISTRY antes de habilitar.
+
+Problemas reais encontrados e resolvidos, importantes para qualquer
+automação futura de dispatch:
+
+1. **Perfil "fantasma":** criar a pasta `C:\Users\meizexgrid` manualmente
+   (antes do primeiro logon) não registra o perfil de verdade no Windows.
+   O SO criou o perfil real em `C:\Users\meizexgrid.DELL-B` (sufixo do
+   hostname) no primeiro logon (`runas /user:meizexgrid cmd`), e o sshd
+   procura `authorized_keys` no perfil *real*, não na pasta manual. Sempre
+   forçar um logon (`runas`) antes de configurar `.ssh` para uma conta nova.
+2. **ACL estrita do OpenSSH:** o Win32-OpenSSH recusa `authorized_keys` se
+   qualquer conta além do dono e do SYSTEM tiver permissão no arquivo —
+   mesmo uma conta administradora usada só para configurar. Erro exato:
+   `Bad permissions. Try removing permissions for user: ...`. A pasta `.ssh`
+   pode ter mais permissões (para conseguir configurar), mas o arquivo
+   `authorized_keys` em si só pode ter dono+SYSTEM.
+3. **PATH vazio na sessão SSH:** a conta dedicada não herda o `PATH` de
+   usuário de outra conta — comandos como `python` sem caminho completo
+   falham com "não é reconhecido". Usar sempre caminho absoluto do
+   executável em comandos de dispatch.
+4. **Acesso entre perfis:** uma conta restrita não enxerga arquivos de
+   outro perfil (`C:\Users\usuario\...`) por padrão — precisou de
+   `icacls ... /grant "meizexgrid:(OI)(CI)RX" /T` tanto no clone do
+   repositório quanto na instalação do Python usada. Uma integração real do
+   MRW provavelmente vai preferir um clone/instalação dedicados à conta de
+   serviço, em vez de dar acesso cruzado a perfis de usuários humanos.
+5. **Debug do sshd como serviço:** o Event Log do Windows (`OpenSSH/Operational`)
+   não mostra o motivo detalhado de falhas de autenticação, só eventos de
+   ciclo de vida. Para depurar de verdade, é preciso rodar `sshd.exe -d`
+   como SYSTEM via uma tarefa agendada temporária (`New-ScheduledTaskPrincipal
+   -UserId SYSTEM -LogonType ServiceAccount`), redirecionando a saída a um
+   arquivo — rodar `sshd -d` manualmente (sem ser via serviço) dá um erro
+   diferente e enganoso (falha ao gerar token de usuário, por não estar
+   rodando como SYSTEM).
+
+Limpeza pendente (não bloqueia o critério de conclusão, mas deve ser feita):
+remover a linha `LogLevel DEBUG3` adicionada a `C:\ProgramData\ssh\sshd_config`
+no Dell-B (voltar ao nível padrão), já que o objetivo de depuração foi
+alcançado.
 
 ## NEXT-003 — Validar `git clone` nas duas Dell e rodar o AIR oficial
 
