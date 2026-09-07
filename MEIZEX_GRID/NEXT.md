@@ -89,6 +89,53 @@ ativo); nenhum piloto autenticado foi executado. Segue sem decisão de
 produção — habilitar SSH no Dell-A exige aprovação explícita do usuário,
 não é uma promoção automática deste achado.
 
+## NEXT-004 — Piloto de OpenSSH no Dell-A (aprovado pelo usuário)
+
+SOURCE: LAB-003
+TARGET: NEXT-004
+ACTION: PROMOTE
+REASON: usuário aprovou explicitamente, em 2026-09-07, habilitar um piloto
+de OpenSSH restrito ao Dell-A, seguindo exatamente as condições já propostas
+pelo Codex na investigação de LAB-003 (chave pública, conta sem privilégio
+administrativo, firewall limitado ao IP do Lenovo, sem WinRM).
+EVIDENCE: aprovação em chat, "Vamos aprovar o piloto no Dell-A" (2026-09-07).
+ACTOR: human (Renato)
+
+Escopo autorizado — só o que está listado abaixo, nada além:
+
+1. Verificar no Dell-A, sem alterar nada ainda, se a feature OpenSSH Server
+   está disponível/instalada e se o serviço `sshd` existe (mesmo que
+   parado).
+2. Habilitar o serviço OpenSSH Server **somente no Dell-A** (não no Lenovo
+   nem no Dell-B nesta rodada).
+3. Criar ou usar uma conta **sem privilégios administrativos** no Dell-A
+   dedicada a este acesso — não usar a conta pessoal do usuário nem uma
+   conta admin existente.
+4. Autenticação **só por chave pública** — gerar o par no Lenovo (chave
+   privada protegida por passphrase, nunca sai do Lenovo), provisionar a
+   chave pública em `authorized_keys` da conta dedicada no Dell-A.
+5. Regra de firewall no Dell-A limitando a porta SSH ao IP do Lenovo
+   (192.168.15.98), não aberta para toda a rede.
+6. Registrar a alocação de porta usada no
+   `PORT_REGISTRY/localhost.md` antes de abrir de fato (não só consultar
+   como fez o LAB-003).
+7. Teste de aceitação: do Lenovo, `ssh` autenticado por chave até o Dell-A
+   executando `hostname` e depois `python -m meizex_air.cli probe --detailed`
+   com sucesso (código de saída 0, saída válida).
+
+Explicitamente fora de escopo nesta rodada: WinRM, habilitar SSH no Lenovo
+ou Dell-B, integração com o MRW/dispatch real, qualquer automação que rode
+comandos remotos sem confirmação humana por execução.
+
+Critério de conclusão: teste de aceitação (item 7) bem-sucedido, com
+evidência (log/saída) commitada no repositório, e a alocação de porta
+registrada no PORT_REGISTRY.
+
+SCOPE: MEIZEX_GRID/*, configuração local do Dell-A (fora do repositório —
+documentar o que foi feito na máquina, não é código versionável)
+
+STATUS: aberto, aprovado para execução
+
 ## NEXT-003 — Validar `git clone` nas duas Dell e rodar o AIR oficial
 
 Decorrente de DOT-007. Hoje as três máquinas têm capacidade medida via
