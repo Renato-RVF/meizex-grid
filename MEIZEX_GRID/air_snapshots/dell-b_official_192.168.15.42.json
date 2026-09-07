@@ -1,0 +1,127 @@
+{
+  "schema_version": "0.7",
+  "timestamp_utc": "2026-09-07T17:52:41.540218+00:00",
+  "machine": {
+    "hostname": "Dell-B",
+    "architecture": "AMD64"
+  },
+  "os": {
+    "name": "Windows",
+    "version": "10.0.26200"
+  },
+  "cpu": {
+    "logical_processors": 12,
+    "physical_cores": 10,
+    "usage_percent": 0.0
+  },
+  "memory": {
+    "total_bytes": 34029125632,
+    "available_bytes": 19044728832,
+    "used_bytes": 14984396800,
+    "used_percent": 44.0,
+    "committed_bytes": null
+  },
+  "swap": {
+    "total_bytes": 2147483648,
+    "used_bytes": 21794816,
+    "free_bytes": 2125688832,
+    "used_percent": 1.0
+  },
+  "storage": [
+    {
+      "device": "C:\\",
+      "mountpoint": "C:\\",
+      "fstype": "NTFS",
+      "total_bytes": 508920066048,
+      "free_bytes": 340636110848,
+      "used_percent": 33.1
+    },
+    {
+      "device": "G:\\",
+      "mountpoint": "G:\\",
+      "fstype": "FAT32",
+      "total_bytes": 508920066048,
+      "free_bytes": 323604303872,
+      "used_percent": 36.4
+    }
+  ],
+  "gpu": [],
+  "pressure_metrics": {
+    "memory_pressure": "LOW",
+    "cpu_pressure": "LOW",
+    "process_pressure": "HIGH",
+    "swap_pressure": "LOW"
+  },
+  "effective_capacity": {
+    "memory": {
+      "physical_total_bytes": 34029125632,
+      "currently_available_bytes": 19044728832,
+      "safety_reserve_bytes": 2147483648,
+      "effective_safe_available_bytes": 16897245184
+    }
+  },
+  "resources": [
+    {
+      "resource_id": "python_current",
+      "resource_kind": "DETERMINISTIC_EXECUTOR",
+      "display_name": "Python (Current)",
+      "declared_present": true,
+      "observed_present": true,
+      "confidence": "CONFIRMED",
+      "capabilities_observed": ["RUN_CODE"],
+      "executable_path": "C:\\Users\\usuario\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+      "version": "3.13.3",
+      "process_running": true,
+      "detection_sources": ["PYTHON_RUNTIME"]
+    },
+    {
+      "resource_id": "powershell_sys",
+      "resource_kind": "DETERMINISTIC_EXECUTOR",
+      "display_name": "PowerShell",
+      "declared_present": true,
+      "observed_present": true,
+      "confidence": "CONFIRMED",
+      "capabilities_observed": ["RUN_SHELL"],
+      "executable_path": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.EXE",
+      "process_running": true,
+      "detection_sources": ["PATH", "PROCESS_TABLE"]
+    },
+    {
+      "resource_id": "ollama_local",
+      "resource_kind": "RUNTIME_ENVIRONMENT",
+      "display_name": "Ollama",
+      "declared_present": false,
+      "observed_present": false,
+      "confidence": "NOT_FOUND",
+      "endpoint_declared": "http://localhost:11434"
+    },
+    {
+      "resource_id": "lm_studio_local",
+      "resource_kind": "RUNTIME_ENVIRONMENT",
+      "display_name": "LM Studio",
+      "declared_present": false,
+      "observed_present": false,
+      "confidence": "NOT_FOUND",
+      "endpoint_declared": "http://localhost:1234"
+    },
+    {
+      "resource_id": "llama_cpp_local",
+      "resource_kind": "MODEL_RUNTIME",
+      "display_name": "llama.cpp",
+      "declared_present": false,
+      "observed_present": false,
+      "confidence": "NOT_FOUND"
+    },
+    {
+      "resource_id": "onnx_runtime_local",
+      "resource_kind": "MODEL_RUNTIME",
+      "display_name": "ONNX Runtime",
+      "declared_present": false,
+      "observed_present": false,
+      "confidence": "NOT_FOUND"
+    }
+  ],
+  "model_registry": { "identities": [] },
+  "formula_registry": { "formulas": [] },
+  "nota": "Coleta oficial via 'python -m meizex_air.cli probe --detailed' apos git clone de https://github.com/Renato-RVF/meizex-grid no Dell-B. Diferenca notavel do Dell-A: ONNX Runtime NOT_FOUND aqui (estava CONFIRMED no Dell-A) -- ambiente Python 3.13.3 (vs 3.11.9 no Dell-A) provavelmente nao tem o pacote onnxruntime instalado. Nenhum executor de inferencia real (Ollama/LM Studio/llama.cpp) confirmado em nenhuma das tres maquinas."
+}

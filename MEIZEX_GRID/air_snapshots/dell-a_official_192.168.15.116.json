@@ -1,0 +1,131 @@
+{
+  "schema_version": "0.7",
+  "timestamp_utc": "2026-09-07T17:48:04.303269+00:00",
+  "machine": {
+    "hostname": "DELL-RVF",
+    "architecture": "AMD64"
+  },
+  "os": {
+    "name": "Windows",
+    "version": "10.0.26200"
+  },
+  "cpu": {
+    "logical_processors": 8,
+    "physical_cores": 4,
+    "usage_percent": 0.0
+  },
+  "memory": {
+    "total_bytes": 16905961472,
+    "available_bytes": 3678060544,
+    "used_bytes": 13227900928,
+    "used_percent": 78.2,
+    "committed_bytes": null
+  },
+  "swap": {
+    "total_bytes": 19694247936,
+    "used_bytes": 232935424,
+    "free_bytes": 19461312512,
+    "used_percent": 1.2
+  },
+  "storage": [
+    {
+      "device": "C:\\",
+      "mountpoint": "C:\\",
+      "fstype": "NTFS",
+      "total_bytes": 252475076608,
+      "free_bytes": 61930336256,
+      "used_percent": 75.5
+    },
+    {
+      "device": "G:\\",
+      "mountpoint": "G:\\",
+      "fstype": "FAT32",
+      "total_bytes": 252475076608,
+      "free_bytes": 58833817600,
+      "used_percent": 76.7
+    }
+  ],
+  "gpu": [],
+  "pressure_metrics": {
+    "memory_pressure": "MODERATE",
+    "cpu_pressure": "LOW",
+    "process_pressure": "HIGH",
+    "swap_pressure": "LOW"
+  },
+  "effective_capacity": {
+    "memory": {
+      "physical_total_bytes": 16905961472,
+      "currently_available_bytes": 3678060544,
+      "safety_reserve_bytes": 2147483648,
+      "effective_safe_available_bytes": 1530576896
+    }
+  },
+  "resources": [
+    {
+      "resource_id": "python_current",
+      "resource_kind": "DETERMINISTIC_EXECUTOR",
+      "display_name": "Python (Current)",
+      "declared_present": true,
+      "observed_present": true,
+      "confidence": "CONFIRMED",
+      "capabilities_declared": ["RUN_CODE"],
+      "capabilities_observed": ["RUN_CODE"],
+      "executable_path": "C:\\Users\\Renato Valente\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "version": "3.11.9",
+      "process_running": true,
+      "detection_sources": ["PYTHON_RUNTIME"]
+    },
+    {
+      "resource_id": "powershell_sys",
+      "resource_kind": "DETERMINISTIC_EXECUTOR",
+      "display_name": "PowerShell",
+      "declared_present": true,
+      "observed_present": true,
+      "confidence": "CONFIRMED",
+      "capabilities_declared": ["RUN_SHELL"],
+      "capabilities_observed": ["RUN_SHELL"],
+      "executable_path": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE",
+      "process_running": true,
+      "detection_sources": ["PATH", "PROCESS_TABLE"]
+    },
+    {
+      "resource_id": "ollama_local",
+      "resource_kind": "RUNTIME_ENVIRONMENT",
+      "display_name": "Ollama",
+      "declared_present": false,
+      "observed_present": false,
+      "confidence": "NOT_FOUND",
+      "endpoint_declared": "http://localhost:11434"
+    },
+    {
+      "resource_id": "lm_studio_local",
+      "resource_kind": "RUNTIME_ENVIRONMENT",
+      "display_name": "LM Studio",
+      "declared_present": false,
+      "observed_present": false,
+      "confidence": "NOT_FOUND",
+      "endpoint_declared": "http://localhost:1234"
+    },
+    {
+      "resource_id": "llama_cpp_local",
+      "resource_kind": "MODEL_RUNTIME",
+      "display_name": "llama.cpp",
+      "declared_present": false,
+      "observed_present": false,
+      "confidence": "NOT_FOUND"
+    },
+    {
+      "resource_id": "onnx_runtime_local",
+      "resource_kind": "MODEL_RUNTIME",
+      "display_name": "ONNX Runtime",
+      "declared_present": true,
+      "observed_present": true,
+      "confidence": "CONFIRMED",
+      "capabilities_observed": ["INFERENCE"],
+      "detection_sources": ["PACKAGE_METADATA"]
+    }
+  ],
+  "model_registry": { "identities": [] },
+  "formula_registry": { "formulas": [] },
+  "nota": "Coleta oficial via 'python -m meizex_air.cli probe --detailed' apos git clone de https://github.com/Renato-RVF/meizex-grid no Dell-A. Substitui/complementa dell-a_192.168.15.116.json (gerado pelo standalone_probe.py, sem executor registry). Process_pressure completo omitido aqui por já estar registrado no standalone; ver histórico do NEXT-001/NEXT-003 para o JSON bruto completo se necessário."
+}

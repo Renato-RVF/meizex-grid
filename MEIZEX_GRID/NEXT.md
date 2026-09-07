@@ -102,4 +102,25 @@ ao já existente do Lenovo.
 
 SCOPE: MEIZEX_GRID/air_snapshots/*
 
-STATUS: aberto
+STATUS: concluído em 2026-09-07
+
+Resultado: [air_snapshots/dell-a_official_192.168.15.116.json](air_snapshots/dell-a_official_192.168.15.116.json)
+e [air_snapshots/dell-b_official_192.168.15.42.json](air_snapshots/dell-b_official_192.168.15.42.json),
+ambos via `python -m meizex_air.cli probe --detailed` após `git clone` do
+repositório https://github.com/Renato-RVF/meizex-grid.
+
+Achados:
+- Confirma DOT-003: Ollama e LM Studio aparecem `NOT_FOUND` nas três máquinas
+  (Lenovo ainda não testado com o CLI oficial, mas Dell-A e Dell-B sim) — sem
+  falso positivo do bug conhecido em `executor_probe.py:121`, já que nenhum
+  serviço respondia nessas portas.
+- Nenhum executor de inferência real (Ollama/LM Studio/llama.cpp) confirmado
+  em nenhuma máquina testada até agora — o Grid hoje não tem onde rodar
+  inferência de modelo, só execução de código Python/PowerShell.
+- Dell-A tem ONNX Runtime confirmado (Python 3.11.9); Dell-B não tem
+  (Python 3.13.3) — diferença de ambiente entre as duas, não avaliado se é
+  relevante para o Grid ainda.
+- `git clone` funcionou nas duas Dell sem maiores problemas depois de
+  resolvida uma trava de 2FA da conta GitHub (login preso em
+  `sessions/two-factor/app`, resolvido com um código de recuperação salvo em
+  `MEIZEX_VAULT/github-recovery-codes.txt`).
