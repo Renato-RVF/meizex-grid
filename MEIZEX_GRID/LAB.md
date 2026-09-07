@@ -218,3 +218,45 @@ STATUS: investigação documentada; teste real de conexão falhou antes da
 execução. Piloto autenticado pendente de aprovação e preparação do destino.
 Sem promoção para DOT, sem integração MRW, sem habilitação SSH ou mudança de
 segurança. NEXT-002 permanece parcialmente concluído.
+
+
+### LAB-003 — Execução de NEXT-004: bloqueio de acesso inicial (2026-09-07)
+
+NEXT-004 promoveu o piloto restrito ao Dell-A com aprovação registrada de
+Renato. A missão MISSAO_CODEX_piloto_ssh_dell_a.md foi lida nesta rodada,
+assim como o escopo completo de NEXT-004. A aprovação existe; o bloqueio é
+operacional, não uma solicitação de nova aprovação do piloto.
+
+Evidência de conectividade coletada em 2026-09-07T15:09:41.534764-03:00,
+origem LAPTOP-CCJFHC8E: socket.create_connection para 192.168.15.116:22,
+timeout de 3 segundos, retornou WinError 10061 (conexão recusada).
+Isso não permite concluir se a feature está instalada ou disponível no Dell-A.
+
+O primeiro passo exige consulta local no Dell-A. O shell desta sessão executa
+no Lenovo; não há ferramenta de execução conectada ao Dell-A disponível e o
+controle de aplicativos nativos/RDP está desabilitado nesta sessão. Acesso
+RDP manual relatado anteriormente não equivale a acesso operável pelo agente.
+Não foram tentados WinRM, tarefas remotas ou outro transporte alternativo.
+
+Conforme a instrução da missão de parar e documentar quando um passo não for
+possível, a execução parou antes de instalar/habilitar SSH, criar conta,
+gerar chaves, alterar firewall ou reservar porta. Nenhuma configuração foi
+alterada em qualquer nó. Não houve hostname remoto nem execução de AIR;
+o critério de aceitação de NEXT-004 não foi cumprido.
+
+Para retomar: disponibilizar uma sessão de execução local no Dell-A, ou o
+usuário realizar e devolver a consulta inicial em PowerShell elevado no Dell-A:
+
+```powershell
+hostname
+Get-WindowsCapability -Online -Name 'OpenSSH.Server*'
+Get-Service -Name sshd -ErrorAction Continue
+```
+
+Esses comandos apenas consultam estado. Seu resultado libera o diagnóstico
+do primeiro passo; a configuração subsequente ainda precisa de acesso local
+operável e deve seguir todos os limites de NEXT-004. A passphrase da futura
+chave deve ser informada pelo usuário localmente, não enviada ao chat.
+
+STATUS: piloto aprovado, bloqueado no acesso inicial ao Dell-A; aguardando
+acesso local/assistência do usuário. Nenhuma promoção para produção.

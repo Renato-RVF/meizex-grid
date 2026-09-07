@@ -134,7 +134,10 @@ registrada no PORT_REGISTRY.
 SCOPE: MEIZEX_GRID/*, configuração local do Dell-A (fora do repositório —
 documentar o que foi feito na máquina, não é código versionável)
 
-STATUS: aberto, aprovado para execução
+STATUS: aprovado para execução, bloqueado em 2026-09-07 no acesso inicial
+ao Dell-A. SSH :22 recusado; sessão atual sem controle local/RDP do destino.
+Ver atualização de LAB-003. Nenhuma configuração alterada; teste de aceitação
+ainda não realizado.
 
 ## NEXT-003 — Validar `git clone` nas duas Dell e rodar o AIR oficial
 
