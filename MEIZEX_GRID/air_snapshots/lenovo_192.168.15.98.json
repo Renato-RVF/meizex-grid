@@ -1,0 +1,772 @@
+{
+  "schema_version": "0.7",
+  "timestamp_utc": "2026-09-07T02:06:20.645590+00:00",
+  "machine": {
+    "hostname": "LAPTOP-CCJFHC8E",
+    "architecture": "AMD64"
+  },
+  "os": {
+    "name": "Windows",
+    "version": "10.0.26200"
+  },
+  "cpu": {
+    "logical_processors": 16,
+    "physical_cores": 10,
+    "usage_percent": 6.7
+  },
+  "memory": {
+    "total_bytes": 25414197248,
+    "available_bytes": 8908595200,
+    "used_bytes": 16505602048,
+    "used_percent": 64.9,
+    "committed_bytes": null
+  },
+  "swap": {
+    "total_bytes": 16642998272,
+    "used_bytes": 1289052160,
+    "free_bytes": 15353946112,
+    "used_percent": 7.7
+  },
+  "storage": [
+    {
+      "device": "C:\\",
+      "mountpoint": "C:\\",
+      "fstype": "NTFS",
+      "total_bytes": 509722226688,
+      "free_bytes": 120632229888,
+      "used_percent": 76.3
+    },
+    {
+      "device": "D:\\",
+      "mountpoint": "D:\\",
+      "fstype": "NTFS",
+      "total_bytes": 1000202039296,
+      "free_bytes": 591760605184,
+      "used_percent": 40.8
+    },
+    {
+      "device": "E:\\",
+      "mountpoint": "E:\\",
+      "fstype": "exFAT",
+      "total_bytes": 2000353755136,
+      "free_bytes": 1839992930304,
+      "used_percent": 8.0
+    },
+    {
+      "device": "G:\\",
+      "mountpoint": "G:\\",
+      "fstype": "FAT32",
+      "total_bytes": 509722226688,
+      "free_bytes": 114600615936,
+      "used_percent": 77.5
+    },
+    {
+      "device": "H:\\",
+      "mountpoint": "H:\\",
+      "fstype": "FAT32",
+      "total_bytes": 7808155648,
+      "free_bytes": 7656194048,
+      "used_percent": 1.9
+    }
+  ],
+  "gpu": [],
+  "process_pressure": {
+    "total_processes": 401,
+    "top_memory": [
+      {
+        "pid": 3800,
+        "name": "MemCompression",
+        "exe_path": "MemCompression",
+        "username": null,
+        "create_time": 1788600593.5684693,
+        "num_threads": 62,
+        "memory_bytes": 1636933632,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      },
+      {
+        "pid": 20788,
+        "name": "claude.exe",
+        "exe_path": "C:\\Program Files\\WindowsApps\\Claude_1.46388.4.0_x64__pzs8sxrjxfjjc\\app\\claude.exe",
+        "username": "LAPTOP-CCJFHC8E\\MEIZEX-ADMIN",
+        "create_time": 1788600748.786664,
+        "num_threads": 34,
+        "memory_bytes": 702087168,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      },
+      {
+        "pid": 29484,
+        "name": "ChatGPT.exe",
+        "exe_path": "C:\\Program Files\\WindowsApps\\OpenAI.Codex_26.901.5280.0_x64__2p2nqsd0c76g0\\app\\ChatGPT.exe",
+        "username": "LAPTOP-CCJFHC8E\\MEIZEX-ADMIN",
+        "create_time": 1788617730.097226,
+        "num_threads": 28,
+        "memory_bytes": 493486080,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      },
+      {
+        "pid": 10144,
+        "name": "chrome.exe",
+        "exe_path": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "username": "LAPTOP-CCJFHC8E\\MEIZEX-ADMIN",
+        "create_time": 1788734436.357726,
+        "num_threads": 36,
+        "memory_bytes": 468353024,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      },
+      {
+        "pid": 4656,
+        "name": "NortonSvc.exe",
+        "exe_path": "C:\\Program Files\\Norton\\Suite\\NortonSvc.exe",
+        "username": null,
+        "create_time": 1788600594.1351552,
+        "num_threads": 271,
+        "memory_bytes": 412819456,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      },
+      {
+        "pid": 26892,
+        "name": "chrome.exe",
+        "exe_path": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "username": "LAPTOP-CCJFHC8E\\MEIZEX-ADMIN",
+        "create_time": 1788746734.887312,
+        "num_threads": 31,
+        "memory_bytes": 407654400,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      },
+      {
+        "pid": 4672,
+        "name": "model_host.exe",
+        "exe_path": "C:\\Program Files\\Norton\\Suite\\model_host.exe",
+        "username": "LAPTOP-CCJFHC8E\\MEIZEX-ADMIN",
+        "create_time": 1788746062.3635101,
+        "num_threads": 16,
+        "memory_bytes": 369700864,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      },
+      {
+        "pid": 31616,
+        "name": "chrome.exe",
+        "exe_path": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "username": "LAPTOP-CCJFHC8E\\MEIZEX-ADMIN",
+        "create_time": 1788723535.893981,
+        "num_threads": 31,
+        "memory_bytes": 369057792,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      },
+      {
+        "pid": 5792,
+        "name": "explorer.exe",
+        "exe_path": "C:\\Windows\\explorer.exe",
+        "username": "LAPTOP-CCJFHC8E\\MEIZEX-ADMIN",
+        "create_time": 1788600596.4249327,
+        "num_threads": 158,
+        "memory_bytes": 366268416,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      },
+      {
+        "pid": 29352,
+        "name": "ChatGPT.exe",
+        "exe_path": "C:\\Program Files\\WindowsApps\\OpenAI.Codex_26.901.5280.0_x64__2p2nqsd0c76g0\\app\\ChatGPT.exe",
+        "username": "LAPTOP-CCJFHC8E\\MEIZEX-ADMIN",
+        "create_time": 1788617720.3034897,
+        "num_threads": 71,
+        "memory_bytes": 332615680,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      }
+    ],
+    "top_cpu": [
+      {
+        "pid": 0,
+        "name": "System Idle Process",
+        "exe_path": null,
+        "username": "NT AUTHORITY\\SYSTEM",
+        "create_time": 0.0,
+        "num_threads": 48,
+        "memory_bytes": 8192,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      },
+      {
+        "pid": 4,
+        "name": "System",
+        "exe_path": "",
+        "username": "NT AUTHORITY\\SYSTEM",
+        "create_time": 0.0,
+        "num_threads": 434,
+        "memory_bytes": 10006528,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      },
+      {
+        "pid": 236,
+        "name": "unknown_236",
+        "exe_path": "",
+        "username": null,
+        "create_time": 1788600574.5991151,
+        "num_threads": 0,
+        "memory_bytes": 95473664,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      },
+      {
+        "pid": 240,
+        "name": "msedgewebview2.exe",
+        "exe_path": "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\152.0.4191.62\\msedgewebview2.exe",
+        "username": "LAPTOP-CCJFHC8E\\MEIZEX-ADMIN",
+        "create_time": 1788612969.6897693,
+        "num_threads": 19,
+        "memory_bytes": 6922240,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      },
+      {
+        "pid": 280,
+        "name": "Registry",
+        "exe_path": "Registry",
+        "username": null,
+        "create_time": 1788600574.6136265,
+        "num_threads": 4,
+        "memory_bytes": 49242112,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      },
+      {
+        "pid": 992,
+        "name": "PresentMonService.exe",
+        "exe_path": "C:\\Program Files\\WindowsApps\\AppUp.IntelArcSoftware_26.26.2459.0_x64__8j3eq9eme6ctt\\VFS\\ProgramFilesX64\\Intel\\Intel Graphics Software\\PresentMonService.exe",
+        "username": null,
+        "create_time": 1788600613.0703752,
+        "num_threads": 12,
+        "memory_bytes": 13750272,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      },
+      {
+        "pid": 1016,
+        "name": "smss.exe",
+        "exe_path": "C:\\Windows\\System32\\smss.exe",
+        "username": null,
+        "create_time": 1788600578.804443,
+        "num_threads": 2,
+        "memory_bytes": 1503232,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      },
+      {
+        "pid": 1128,
+        "name": "python.exe",
+        "exe_path": "C:\\Users\\MEIZEX-ADMIN\\.codex\\cache\\ngs-analysis-workbench\\venvs\\0.2.8\\Scripts\\python.exe",
+        "username": "LAPTOP-CCJFHC8E\\MEIZEX-ADMIN",
+        "create_time": 1788742506.9199767,
+        "num_threads": 1,
+        "memory_bytes": 4366336,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      },
+      {
+        "pid": 1160,
+        "name": "bash.exe",
+        "exe_path": "C:\\Program Files\\Git\\bin\\bash.exe",
+        "username": "LAPTOP-CCJFHC8E\\MEIZEX-ADMIN",
+        "create_time": 1788746772.6118665,
+        "num_threads": 4,
+        "memory_bytes": 6942720,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      },
+      {
+        "pid": 1348,
+        "name": "dwm.exe",
+        "exe_path": "C:\\Windows\\System32\\dwm.exe",
+        "username": null,
+        "create_time": 1788600593.3256948,
+        "num_threads": 20,
+        "memory_bytes": 156917760,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      }
+    ],
+    "top_apps_by_memory": [
+      {
+        "app_name": "claude.exe",
+        "category": "UNKNOWN",
+        "total_memory_bytes": 2624675840,
+        "total_cpu_percent": 0.0,
+        "process_count": 14
+      },
+      {
+        "app_name": "chrome.exe",
+        "category": "UNKNOWN",
+        "total_memory_bytes": 2003116032,
+        "total_cpu_percent": 0.0,
+        "process_count": 14
+      },
+      {
+        "app_name": "svchost.exe",
+        "category": "UNKNOWN",
+        "total_memory_bytes": 1751433216,
+        "total_cpu_percent": 0.0,
+        "process_count": 94
+      },
+      {
+        "app_name": "MemCompression",
+        "category": "UNKNOWN",
+        "total_memory_bytes": 1636933632,
+        "total_cpu_percent": 0.0,
+        "process_count": 1
+      },
+      {
+        "app_name": "ChatGPT.exe",
+        "category": "UNKNOWN",
+        "total_memory_bytes": 1362321408,
+        "total_cpu_percent": 0.0,
+        "process_count": 8
+      },
+      {
+        "app_name": "msedgewebview2.exe",
+        "category": "UNKNOWN",
+        "total_memory_bytes": 1029427200,
+        "total_cpu_percent": 0.0,
+        "process_count": 24
+      },
+      {
+        "app_name": "model_host.exe",
+        "category": "UNKNOWN",
+        "total_memory_bytes": 791769088,
+        "total_cpu_percent": 0.0,
+        "process_count": 4
+      },
+      {
+        "app_name": "node.exe",
+        "category": "UNKNOWN",
+        "total_memory_bytes": 649383936,
+        "total_cpu_percent": 0.0,
+        "process_count": 15
+      },
+      {
+        "app_name": "python.exe",
+        "category": "UNKNOWN",
+        "total_memory_bytes": 492937216,
+        "total_cpu_percent": 0.0,
+        "process_count": 21
+      },
+      {
+        "app_name": "NortonSvc.exe",
+        "category": "UNKNOWN",
+        "total_memory_bytes": 412819456,
+        "total_cpu_percent": 0.0,
+        "process_count": 1
+      }
+    ]
+  },
+  "pressure_metrics": {
+    "memory_pressure": "MODERATE",
+    "cpu_pressure": "LOW",
+    "process_pressure": "HIGH",
+    "swap_pressure": "LOW"
+  },
+  "effective_capacity": {
+    "memory": {
+      "physical_total_bytes": 25414197248,
+      "currently_available_bytes": 8908595200,
+      "safety_reserve_bytes": 2147483648,
+      "effective_safe_available_bytes": 6761111552
+    }
+  },
+  "resources": [
+    {
+      "resource_id": "python_current",
+      "resource_kind": "DETERMINISTIC_EXECUTOR",
+      "display_name": "Python (Current)",
+      "declared_present": true,
+      "observed_present": true,
+      "confidence": "CONFIRMED",
+      "capabilities_declared": [
+        "RUN_CODE"
+      ],
+      "capabilities_observed": [
+        "RUN_CODE"
+      ],
+      "executable_path": "C:\\Program Files\\Python312\\python.exe",
+      "version": "3.12.9",
+      "process_running": true,
+      "process_ids": [
+        8524
+      ],
+      "endpoint_declared": null,
+      "endpoint_observed_reachable": false,
+      "detection_sources": [
+        "PYTHON_RUNTIME"
+      ],
+      "limitations": [],
+      "relations": [],
+      "last_verified_utc": "2026-09-07T02:06:15.970436+00:00"
+    },
+    {
+      "resource_id": "powershell_sys",
+      "resource_kind": "DETERMINISTIC_EXECUTOR",
+      "display_name": "PowerShell",
+      "declared_present": true,
+      "observed_present": true,
+      "confidence": "CONFIRMED",
+      "capabilities_declared": [
+        "RUN_SHELL"
+      ],
+      "capabilities_observed": [
+        "RUN_SHELL"
+      ],
+      "executable_path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.EXE",
+      "version": null,
+      "process_running": true,
+      "process_ids": [
+        2944,
+        10640,
+        12348,
+        18580,
+        22372,
+        25344,
+        33492
+      ],
+      "endpoint_declared": null,
+      "endpoint_observed_reachable": false,
+      "detection_sources": [
+        "PATH",
+        "PROCESS_TABLE"
+      ],
+      "limitations": [],
+      "relations": [],
+      "last_verified_utc": "2026-09-07T02:06:15.988673+00:00"
+    },
+    {
+      "resource_id": "ollama_local",
+      "resource_kind": "RUNTIME_ENVIRONMENT",
+      "display_name": "Ollama",
+      "declared_present": false,
+      "observed_present": false,
+      "confidence": "NOT_FOUND",
+      "capabilities_declared": [
+        "SERVE_MODEL",
+        "INFERENCE"
+      ],
+      "capabilities_observed": [],
+      "executable_path": null,
+      "version": null,
+      "process_running": false,
+      "process_ids": [],
+      "endpoint_declared": "http://localhost:11434",
+      "endpoint_observed_reachable": false,
+      "detection_sources": [],
+      "limitations": [],
+      "relations": [],
+      "last_verified_utc": "2026-09-07T02:06:16.007772+00:00"
+    },
+    {
+      "resource_id": "lm_studio_local",
+      "resource_kind": "RUNTIME_ENVIRONMENT",
+      "display_name": "LM Studio",
+      "declared_present": true,
+      "observed_present": false,
+      "confidence": "PARTIAL",
+      "capabilities_declared": [
+        "SERVE_MODEL",
+        "INFERENCE"
+      ],
+      "capabilities_observed": [],
+      "executable_path": null,
+      "version": null,
+      "process_running": true,
+      "process_ids": [
+        2180,
+        2312,
+        19464,
+        25016,
+        25348
+      ],
+      "endpoint_declared": "http://localhost:1234",
+      "endpoint_observed_reachable": false,
+      "detection_sources": [
+        "PROCESS_TABLE_GUI"
+      ],
+      "limitations": [],
+      "relations": [],
+      "last_verified_utc": "2026-09-07T02:06:18.569868+00:00"
+    },
+    {
+      "resource_id": "llama_cpp_local",
+      "resource_kind": "MODEL_RUNTIME",
+      "display_name": "llama.cpp",
+      "declared_present": false,
+      "observed_present": false,
+      "confidence": "NOT_FOUND",
+      "capabilities_declared": [
+        "INFERENCE",
+        "SERVE_MODEL"
+      ],
+      "capabilities_observed": [],
+      "executable_path": null,
+      "version": null,
+      "process_running": false,
+      "process_ids": [],
+      "endpoint_declared": null,
+      "endpoint_observed_reachable": false,
+      "detection_sources": [],
+      "limitations": [],
+      "relations": [],
+      "last_verified_utc": "2026-09-07T02:06:20.645590+00:00"
+    },
+    {
+      "resource_id": "onnx_runtime_local",
+      "resource_kind": "MODEL_RUNTIME",
+      "display_name": "ONNX Runtime",
+      "declared_present": true,
+      "observed_present": true,
+      "confidence": "CONFIRMED",
+      "capabilities_declared": [
+        "INFERENCE"
+      ],
+      "capabilities_observed": [
+        "INFERENCE"
+      ],
+      "executable_path": null,
+      "version": null,
+      "process_running": false,
+      "process_ids": [],
+      "endpoint_declared": null,
+      "endpoint_observed_reachable": false,
+      "detection_sources": [
+        "PACKAGE_METADATA"
+      ],
+      "limitations": [],
+      "relations": [],
+      "last_verified_utc": "2026-09-07T02:06:20.645590+00:00"
+    }
+  ],
+  "executors": [
+    {
+      "resource_id": "python_current",
+      "resource_kind": "DETERMINISTIC_EXECUTOR",
+      "display_name": "Python (Current)",
+      "declared_present": true,
+      "observed_present": true,
+      "confidence": "CONFIRMED",
+      "capabilities_declared": [
+        "RUN_CODE"
+      ],
+      "capabilities_observed": [
+        "RUN_CODE"
+      ],
+      "executable_path": "C:\\Program Files\\Python312\\python.exe",
+      "version": "3.12.9",
+      "process_running": true,
+      "process_ids": [
+        8524
+      ],
+      "endpoint_declared": null,
+      "endpoint_observed_reachable": false,
+      "detection_sources": [
+        "PYTHON_RUNTIME"
+      ],
+      "limitations": [],
+      "relations": [],
+      "last_verified_utc": "2026-09-07T02:06:15.970436+00:00",
+      "executor_id": "python_current",
+      "executor_type": "PYTHON"
+    },
+    {
+      "resource_id": "powershell_sys",
+      "resource_kind": "DETERMINISTIC_EXECUTOR",
+      "display_name": "PowerShell",
+      "declared_present": true,
+      "observed_present": true,
+      "confidence": "CONFIRMED",
+      "capabilities_declared": [
+        "RUN_SHELL"
+      ],
+      "capabilities_observed": [
+        "RUN_SHELL"
+      ],
+      "executable_path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.EXE",
+      "version": null,
+      "process_running": true,
+      "process_ids": [
+        2944,
+        10640,
+        12348,
+        18580,
+        22372,
+        25344,
+        33492
+      ],
+      "endpoint_declared": null,
+      "endpoint_observed_reachable": false,
+      "detection_sources": [
+        "PATH",
+        "PROCESS_TABLE"
+      ],
+      "limitations": [],
+      "relations": [],
+      "last_verified_utc": "2026-09-07T02:06:15.988673+00:00",
+      "executor_id": "powershell_sys",
+      "executor_type": "POWERSHELL"
+    },
+    {
+      "resource_id": "ollama_local",
+      "resource_kind": "RUNTIME_ENVIRONMENT",
+      "display_name": "Ollama",
+      "declared_present": false,
+      "observed_present": false,
+      "confidence": "NOT_FOUND",
+      "capabilities_declared": [
+        "SERVE_MODEL",
+        "INFERENCE"
+      ],
+      "capabilities_observed": [],
+      "executable_path": null,
+      "version": null,
+      "process_running": false,
+      "process_ids": [],
+      "endpoint_declared": "http://localhost:11434",
+      "endpoint_observed_reachable": false,
+      "detection_sources": [],
+      "limitations": [],
+      "relations": [],
+      "last_verified_utc": "2026-09-07T02:06:16.007772+00:00",
+      "executor_id": "ollama_local",
+      "executor_type": "OLLAMA"
+    },
+    {
+      "resource_id": "lm_studio_local",
+      "resource_kind": "RUNTIME_ENVIRONMENT",
+      "display_name": "LM Studio",
+      "declared_present": true,
+      "observed_present": false,
+      "confidence": "PARTIAL",
+      "capabilities_declared": [
+        "SERVE_MODEL",
+        "INFERENCE"
+      ],
+      "capabilities_observed": [],
+      "executable_path": null,
+      "version": null,
+      "process_running": true,
+      "process_ids": [
+        2180,
+        2312,
+        19464,
+        25016,
+        25348
+      ],
+      "endpoint_declared": "http://localhost:1234",
+      "endpoint_observed_reachable": false,
+      "detection_sources": [
+        "PROCESS_TABLE_GUI"
+      ],
+      "limitations": [],
+      "relations": [],
+      "last_verified_utc": "2026-09-07T02:06:18.569868+00:00",
+      "executor_id": "lm_studio_local",
+      "executor_type": "LM_STUDIO"
+    },
+    {
+      "resource_id": "llama_cpp_local",
+      "resource_kind": "MODEL_RUNTIME",
+      "display_name": "llama.cpp",
+      "declared_present": false,
+      "observed_present": false,
+      "confidence": "NOT_FOUND",
+      "capabilities_declared": [
+        "INFERENCE",
+        "SERVE_MODEL"
+      ],
+      "capabilities_observed": [],
+      "executable_path": null,
+      "version": null,
+      "process_running": false,
+      "process_ids": [],
+      "endpoint_declared": null,
+      "endpoint_observed_reachable": false,
+      "detection_sources": [],
+      "limitations": [],
+      "relations": [],
+      "last_verified_utc": "2026-09-07T02:06:20.645590+00:00",
+      "executor_id": "llama_cpp_local",
+      "executor_type": "LLAMA_CPP"
+    },
+    {
+      "resource_id": "onnx_runtime_local",
+      "resource_kind": "MODEL_RUNTIME",
+      "display_name": "ONNX Runtime",
+      "declared_present": true,
+      "observed_present": true,
+      "confidence": "CONFIRMED",
+      "capabilities_declared": [
+        "INFERENCE"
+      ],
+      "capabilities_observed": [
+        "INFERENCE"
+      ],
+      "executable_path": null,
+      "version": null,
+      "process_running": false,
+      "process_ids": [],
+      "endpoint_declared": null,
+      "endpoint_observed_reachable": false,
+      "detection_sources": [
+        "PACKAGE_METADATA"
+      ],
+      "limitations": [],
+      "relations": [],
+      "last_verified_utc": "2026-09-07T02:06:20.645590+00:00",
+      "executor_id": "onnx_runtime_local",
+      "executor_type": "ONNX_RUNTIME"
+    }
+  ],
+  "model_registry": {
+    "identities": []
+  },
+  "formula_registry": {
+    "formulas": [
+      {
+        "formula_id": "gemma-repository-forensics",
+        "formula_version": "v1",
+        "display_name": "Gemma 4 Repository Forensics",
+        "description": "Formula canônica para inspeção forense de repositórios focada em grounding rigoroso e persistência.",
+        "intended_task_classes": [
+          "REPOSITORY_INSPECTION"
+        ],
+        "intended_model_ids": [
+          "google/gemma-4-e4b"
+        ],
+        "intended_artifact_ids": [],
+        "intended_resource_kinds": [],
+        "system_instructions": "Você é um agente forense. Siga estritamente as políticas descritas nesta Formula.",
+        "task_policy": "LOCK TASK -> OBSERVE -> BUILD CANDIDATE SET -> VERIFY -> CONTINUE UNTIL: SUFFICIENT EVIDENCE OR REASONABLE EXHAUSTION OR EXPLICIT SEARCH BLOCKAGE -> RECONCILE WITH ORIGINAL TASK -> CLAIM",
+        "grounding_policy": "SYMPTOM != CAUSE. UNSUPPORTED CAUSAL CLAIMS ARE FORBIDDEN. UNKNOWN IS PREFERRED TO UNSUPPORTED ASSUMPTION.",
+        "search_policy": "IF EVIDENCE IS INSUFFICIENT AND RELEVANT CANDIDATES REMAIN -> KEEP INVESTIGATING.",
+        "stop_policy": "STOP WHEN: SUFFICIENT EVIDENCE OR REASONABLE EXHAUSTION OR EXPLICIT SEARCH BLOCKAGE.",
+        "recovery_policy": null,
+        "context_policy": "DO NOT RE-ENTER A PREVIOUS TASK WITHOUT EXPLICIT INSTRUCTION.",
+        "tool_policy": null,
+        "output_policy": "RECONCILE CLAIM WITH ACTIVE TASK before answering.",
+        "runtime_hints": {},
+        "declared_capabilities": [],
+        "observed_capabilities": [],
+        "created_at": null,
+        "source": "MEIZEX",
+        "limitations": [],
+        "formula_fingerprint": "513611b6f87e9b73745ef8c4023105142fd2c4cff68803c56d2efe70dd5e9234",
+        "local_path": "C:\\PROJETOS\\MEIZEX_ECOSYSTEM\\MEIZEX_AIR\\formulas\\formula_air007_gemma_repository_forensics.json"
+      }
+    ]
+  }
+}

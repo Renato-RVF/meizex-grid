@@ -1,0 +1,250 @@
+{
+  "schema_version": "0.7-standalone",
+  "timestamp_utc": "2026-09-07T02:19:51.109774+00:00",
+  "machine": {
+    "hostname": "DELL-RVF",
+    "architecture": "AMD64"
+  },
+  "os": {
+    "name": "Windows",
+    "version": "10.0.26200"
+  },
+  "cpu": {
+    "logical_processors": 8,
+    "physical_cores": 4,
+    "usage_percent": 13.8
+  },
+  "memory": {
+    "total_bytes": 16905961472,
+    "available_bytes": 4185640960,
+    "used_bytes": 12720320512,
+    "used_percent": 75.2
+  },
+  "swap": {
+    "total_bytes": 19694247936,
+    "used_bytes": 249946112,
+    "free_bytes": 19444301824,
+    "used_percent": 1.3
+  },
+  "storage": [
+    {
+      "device": "C:\\",
+      "mountpoint": "C:\\",
+      "fstype": "NTFS",
+      "total_bytes": 252475076608,
+      "free_bytes": 61880008704,
+      "used_percent": 75.5
+    },
+    {
+      "device": "G:\\",
+      "mountpoint": "G:\\",
+      "fstype": "FAT32",
+      "total_bytes": 252475076608,
+      "free_bytes": 58786004992,
+      "used_percent": 76.7
+    }
+  ],
+  "gpu": [],
+  "process_pressure": {
+    "total_processes": 289,
+    "top_memory": [
+      {
+        "pid": 1592,
+        "name": "SupportAssistAgent.exe",
+        "exe_path": "C:\\Program Files\\Dell\\SupportAssistAgent\\bin\\SupportAssistAgent.exe",
+        "username": null,
+        "create_time": 1788456689.5001016,
+        "num_threads": 57,
+        "memory_bytes": 502992896,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      },
+      {
+        "pid": 16396,
+        "name": "chrome.exe",
+        "exe_path": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "username": "DELL-RVF\\Renato Valente",
+        "create_time": 1788732662.4624627,
+        "num_threads": 53,
+        "memory_bytes": 474935296,
+        "cpu_percent": 0.0,
+        "category": "BROWSER"
+      },
+      {
+        "pid": 18544,
+        "name": "explorer.exe",
+        "exe_path": "C:\\Windows\\explorer.exe",
+        "username": "DELL-RVF\\Renato Valente",
+        "create_time": 1788732285.0821948,
+        "num_threads": 100,
+        "memory_bytes": 465043456,
+        "cpu_percent": 0.0,
+        "category": "SYSTEM"
+      },
+      {
+        "pid": 3252,
+        "name": "MemCompression",
+        "exe_path": "MemCompression",
+        "username": null,
+        "create_time": 1787902929.3276603,
+        "num_threads": 54,
+        "memory_bytes": 371904512,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      },
+      {
+        "pid": 4020,
+        "name": "NortonSvc.exe",
+        "exe_path": "C:\\Program Files\\Norton\\Suite\\NortonSvc.exe",
+        "username": null,
+        "create_time": 1787902929.9802241,
+        "num_threads": 190,
+        "memory_bytes": 371417088,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      },
+      {
+        "pid": 7284,
+        "name": "core.exe",
+        "exe_path": "C:\\Program Files\\Topaz OFD\\Warsaw\\core.exe",
+        "username": null,
+        "create_time": 1787902936.7292497,
+        "num_threads": 80,
+        "memory_bytes": 335945728,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      },
+      {
+        "pid": 4136,
+        "name": "Dell.TechHub.Instrumentation.SubAgent.exe",
+        "exe_path": "C:\\Program Files\\Dell\\DTP\\InstrumentationSubAgent\\Dell.TechHub.Instrumentation.SubAgent.exe",
+        "username": null,
+        "create_time": 1788456693.8025424,
+        "num_threads": 35,
+        "memory_bytes": 307662848,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      },
+      {
+        "pid": 21680,
+        "name": "WhatsApp.Root.exe",
+        "exe_path": "C:\\Program Files\\WindowsApps\\5319275A.WhatsAppDesktop_2.2634.101.0_x64__cv1g1gvanyjgm\\WhatsApp.Root.exe",
+        "username": "DELL-RVF\\Renato Valente",
+        "create_time": 1788732735.9831035,
+        "num_threads": 38,
+        "memory_bytes": 284909568,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      },
+      {
+        "pid": 14152,
+        "name": "dwm.exe",
+        "exe_path": "C:\\Windows\\System32\\dwm.exe",
+        "username": null,
+        "create_time": 1788732282.3681157,
+        "num_threads": 20,
+        "memory_bytes": 267825152,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      },
+      {
+        "pid": 22872,
+        "name": "BingSvc.exe",
+        "exe_path": "C:\\Users\\Renato Valente\\AppData\\Local\\Microsoft\\BingSvc\\BingSvc.exe",
+        "username": "DELL-RVF\\Renato Valente",
+        "create_time": 1788732654.5110917,
+        "num_threads": 15,
+        "memory_bytes": 266342400,
+        "cpu_percent": 0.0,
+        "category": "UNKNOWN"
+      }
+    ],
+    "top_apps_by_memory": [
+      {
+        "app_name": "svchost.exe",
+        "category": "SYSTEM",
+        "mem": 2031017984,
+        "cpu": 0.0,
+        "count": 96
+      },
+      {
+        "app_name": "msedgewebview2.exe",
+        "category": "UNKNOWN",
+        "mem": 1431830528,
+        "cpu": 0.0,
+        "count": 26
+      },
+      {
+        "app_name": "chrome.exe",
+        "category": "BROWSER",
+        "mem": 1225064448,
+        "cpu": 0.0,
+        "count": 12
+      },
+      {
+        "app_name": "SupportAssistAgent.exe",
+        "category": "UNKNOWN",
+        "mem": 502992896,
+        "cpu": 0.0,
+        "count": 1
+      },
+      {
+        "app_name": "explorer.exe",
+        "category": "SYSTEM",
+        "mem": 465043456,
+        "cpu": 0.0,
+        "count": 1
+      },
+      {
+        "app_name": "core.exe",
+        "category": "UNKNOWN",
+        "mem": 373075968,
+        "cpu": 0.0,
+        "count": 2
+      },
+      {
+        "app_name": "MemCompression",
+        "category": "UNKNOWN",
+        "mem": 371904512,
+        "cpu": 0.0,
+        "count": 1
+      },
+      {
+        "app_name": "NortonSvc.exe",
+        "category": "UNKNOWN",
+        "mem": 371417088,
+        "cpu": 0.0,
+        "count": 1
+      },
+      {
+        "app_name": "dwm.exe",
+        "category": "UNKNOWN",
+        "mem": 337969152,
+        "cpu": 0.0,
+        "count": 2
+      },
+      {
+        "app_name": "Dell.TechHub.Instrumentation.SubAgent.exe",
+        "category": "UNKNOWN",
+        "mem": 307662848,
+        "cpu": 0.0,
+        "count": 1
+      }
+    ]
+  },
+  "pressure_metrics": {
+    "memory_pressure": "MODERATE",
+    "cpu_pressure": "LOW",
+    "swap_pressure": "LOW",
+    "process_pressure": "HIGH"
+  },
+  "effective_capacity": {
+    "memory": {
+      "physical_total_bytes": 16905961472,
+      "currently_available_bytes": 4185640960,
+      "safety_reserve_bytes": 2147483648,
+      "effective_safe_available_bytes": 2038157312
+    }
+  },
+  "nota": "Gerado por standalone_probe.py (subconjunto de meizex_air probe --detailed: CPU/RAM/swap/disco/processos). Nao inclui executor/artifact/formula registries, que dependem do pacote meizex_air completo."
+}
