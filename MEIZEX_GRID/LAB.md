@@ -55,3 +55,32 @@ EVIDENCE: repositório https://github.com/Renato-RVF/meizex-grid criado
 (privado) e primeiro push bem-sucedido (commit 6f12b5d, 34 arquivos) em
 2026-09-06.
 ACTOR: human (usuário criou o repo e executou o git push manualmente)
+
+## LAB-002 — Comunicação direta entre agentes (Claude e Codex) no Grid
+
+Contexto: em 2026-09-07, ao delegar uma missão de investigação (transporte
+remoto de comando, ver `MISSAO_CODEX_dispatch_remoto.md`) para o Codex
+(GPT-6 Astra), ficou evidente que não existe canal direto entre este agente
+(Claude, operando via Claude Code) e o Codex. A troca de trabalho hoje é:
+Claude escreve missão em arquivo → usuário copia/cola para o Codex → Codex
+trabalha e commita no repositório → Claude só vê o resultado na próxima vez
+que ler o repositório. Funciona, mas é assíncrono e depende do usuário como
+intermediário manual em cada etapa.
+
+Ferramentas de listagem de agentes deste ambiente (`ListAgents`) só
+enxergam sessões do próprio Claude Code (interativas ou Remote Control) —
+Codex CLI é uma ferramenta de outro fornecedor, sem integração nativa.
+
+Hipótese, sem investigação nem implementação ainda: um canal mais direto
+exigiria algo como um MCP server compartilhado que ambos os agentes possam
+ler/escrever, ou um mecanismo de webhook/fila que dispare notificação
+quando um dos lados commita trabalho — reduzindo o vaivém manual do
+usuário a só aprovações, não a colar texto de um lado para o outro.
+
+Não promovido: o custo de construir esse canal só se justifica se o
+vaivém manual via git (já funcional, ver LAB-001/DOT-007) realmente virar
+gargalo na prática — hipótese ainda não testada contra uso real repetido.
+
+STATUS: experimental — aguardando se o padrão de trabalho manual (arquivo
+de missão → colar no Codex → commit → Claude relê) se mostra insuficiente
+antes de investir em integração.
