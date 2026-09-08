@@ -268,6 +268,27 @@ class RunCompleted(BaseEvent):
     step_count: int = Field(ge=0)
 
 
+class StepDivergence(BaseEvent):
+    """Emitted by an executor's own background monitor (not the dispatcher,
+    which only observes start/end) the first time a step's real elapsed
+    time stops matching what its own timeout_s predicted -- while the step
+    is STILL RUNNING, before it completes or times out. See
+    meizex_mrw.statewatch.residual; ``expected_phase``/``observed_phase``
+    are its Divergence fields, carried through unchanged so this event is
+    self-explanatory without cross-referencing the module that produced
+    it."""
+
+    event_type: Literal["StepDivergence"] = "StepDivergence"
+    run_id: str
+    step_id: str
+    capability: str
+    resource: str
+    executor_kind: str
+    expected_phase: str
+    observed_phase: str
+    elapsed_s: float = Field(ge=0)
+
+
 EVENT_CLASSES: tuple[type[BaseEvent], ...] = (
     TurnStarted,
     TaskClassified,
@@ -295,6 +316,7 @@ EVENT_CLASSES: tuple[type[BaseEvent], ...] = (
     StepEscalated,
     RunEscalated,
     RunCompleted,
+    StepDivergence,
 )
 
 AnyEvent = Union[  # noqa: UP007 - Union kept (not X|Y) since it's used as a pydantic type

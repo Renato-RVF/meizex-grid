@@ -39,11 +39,14 @@ from __future__ import annotations
 
 import subprocess
 import threading
+import time
 
 from meizex_mrw.capabilities.models import ExecutionStep
 from meizex_mrw.dispatch.executors.process import ProcessExecutor
 from meizex_mrw.dispatch.models import ResourceExecutionRequest, ResourceExecutionResult
+from meizex_mrw.events.models import StepDivergence
 from meizex_mrw.events.store import EventStore
+from meizex_mrw.statewatch.residual import residual_for_handle
 
 
 class RemoteJobHandle:
@@ -153,6 +156,12 @@ class RemoteSSHExecutor(ProcessExecutor):
     """
 
     DEFAULT_MAX_CONCURRENT = 4
+    DEFAULT_STATEWATCH_POLL_S = 1.0
+    # 0.7, not 1.0: timeout_s is also the moment run_payload() kills the
+    # process (see ProcessExecutor.execute), so warning AT timeout_s gives
+    # a monitor no lead time at all -- the divergence and the kill would
+    # land in the same instant. 0.7 gives real advance notice.
+    DEFAULT_STATEWATCH_WARN_FRACTION = 0.7
 
     def __init__(
         self,
@@ -168,6 +177,8 @@ class RemoteSSHExecutor(ProcessExecutor):
         extra_env: dict[str, str] | None = None,
         event_store: EventStore | None = None,
         max_concurrent: int = DEFAULT_MAX_CONCURRENT,
+        statewatch_poll_s: float = DEFAULT_STATEWATCH_POLL_S,
+        statewatch_warn_fraction: float = DEFAULT_STATEWATCH_WARN_FRACTION,
     ) -> None:
         remote_cmd = (
             f'cd /d "{remote_workdir}" && set PYTHONPATH=src && '
@@ -202,6 +213,8 @@ class RemoteSSHExecutor(ProcessExecutor):
         # execute_async() without ever blocking -- extra jobs queue on this
         # semaphore inside their own background thread, not on the caller.
         self._concurrency_gate = threading.Semaphore(max_concurrent)
+        self.statewatch_poll_s = statewatch_poll_s
+        self.statewatch_warn_fraction = statewatch_warn_fraction
 
     @property
     def kind(self) -> str:
@@ -214,6 +227,74 @@ class RemoteSSHExecutor(ProcessExecutor):
         # happens to be first in the dispatcher's list, regardless of which
         # machine it actually targets -- silently wrong for a multi-node Grid.
         return step.execution_boundary == "PROCESS" and step.resource == self.resource_id
+
+    def execute(self, request: ResourceExecutionRequest, **kwargs) -> ResourceExecutionResult:
+        """Same synchronous contract the dispatcher relies on (it always
+        blocks on this call and never sees a RemoteJobHandle) -- but
+        internally this now runs through execute_async() and polls the
+        handle with STATEWATCH's residual() while waiting, instead of just
+        blocking on a single subprocess.communicate() the way the inherited
+        ProcessExecutor.execute() does.
+
+        The one behavioral addition: the first time real elapsed time
+        stops matching what this step's own timeout_s predicted -- WHILE
+        the step is still running, not after it finishes or times out -- a
+        StepDivergence event is appended to the attached EventStore (if
+        any). It fires at most once per step; a monitor watching the event
+        stream sees it long before ``wait()``/the eventual TIMEOUT result
+        would ever tell it anything is wrong.
+
+        ``**kwargs`` (e.g. ``on_spawn``) is accepted and forwarded for
+        interface compatibility with ProcessExecutor.execute(), but
+        execute_async() already supplies its own on_spawn internally
+        (RemoteJobHandle._capture_proc) to make cancel() work -- a caller
+        passing its own on_spawn here would be silently ignored, so this
+        is intentionally not exposed as a real parameter.
+        """
+        handle = self.execute_async(request)
+        timeout_s = request.timeout_s or self._timeout_s
+        start = time.monotonic()
+        divergence_emitted = False
+        # Poll fast enough to actually catch the warn_fraction crossing
+        # while it happens, not just eventually -- capped by the
+        # configured statewatch_poll_s as the ceiling for a long-running
+        # step so this loop stays cheap.
+        warn_at = timeout_s * self.statewatch_warn_fraction if timeout_s else None
+        poll_interval = (
+            min(self.statewatch_poll_s, max(warn_at / 4, 0.01)) if warn_at else self.statewatch_poll_s
+        )
+
+        while not handle.done():
+            elapsed = time.monotonic() - start
+            divergence = residual_for_handle(
+                handle,
+                elapsed_s=elapsed,
+                timeout_s=timeout_s,
+                warn_fraction=self.statewatch_warn_fraction,
+            )
+            if divergence is not None and not divergence_emitted and self._store is not None:
+                self._store.append(
+                    StepDivergence(
+                        session_id=request.run_id or request.step_id or self.resource_id,
+                        run_id=request.run_id or "",
+                        step_id=request.step_id or f"{request.step.capability}-{self.kind}",
+                        capability=request.step.capability,
+                        resource=request.step.resource,
+                        executor_kind=self.kind,
+                        expected_phase=divergence.expected_phase,
+                        observed_phase=divergence.observed_phase,
+                        elapsed_s=divergence.elapsed_s,
+                    )
+                )
+                divergence_emitted = True
+            # done() may have flipped true while we were computing the
+            # residual above; re-check before sleeping so a fast job never
+            # waits out a full poll interval it didn't need to.
+            if handle.done():
+                break
+            time.sleep(poll_interval)
+
+        return handle.wait()
 
     def execute_async(self, request: ResourceExecutionRequest) -> RemoteJobHandle:
         """Submit ``request`` for background execution; returns immediately,
@@ -243,7 +324,13 @@ class RemoteSSHExecutor(ProcessExecutor):
                     handle._finish(self._cancelled_before_start_result(request))
                     return
                 handle._mark_started()
-                handle._finish(self.execute(request, on_spawn=handle._capture_proc))
+                # Deliberately ProcessExecutor.execute(), NOT self.execute():
+                # self.execute() is now the STATEWATCH-polling wrapper that
+                # itself calls execute_async() to get a handle to poll --
+                # calling it from here would recurse (each job spawning
+                # another execute_async() call) instead of ever doing the
+                # actual subprocess round-trip.
+                handle._finish(ProcessExecutor.execute(self, request, on_spawn=handle._capture_proc))
 
         thread = threading.Thread(
             target=_run,
