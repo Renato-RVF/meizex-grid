@@ -100,8 +100,8 @@ class ProcessExecutor(ResourceExecutor):
             self._emit_event(request, result, latency_ms)
         return result
 
-    @staticmethod
     def _map_outcome(
+        self,
         request: ResourceExecutionRequest,
         outcome: ProcessBoundaryOutcome,
         timeout: float,
@@ -122,7 +122,7 @@ class ProcessExecutor(ResourceExecutor):
                 step_id=request.step_id or f"{request.step.capability}-process",
                 resource_id=request.step.resource,
                 capability=request.step.capability,
-                executor_kind="process",
+                executor_kind=self.kind,
                 status="COMPLETED",
                 output=outcome.result,
                 evidence=evidence,

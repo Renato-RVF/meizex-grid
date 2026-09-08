@@ -3,6 +3,64 @@
 Escopo atual de execução. Itens aqui podem ser implementados/estendidos; nada
 fora daqui é implementação autorizada — apenas descoberta/proposta.
 
+## NEXT-006 — RemoteSSHExecutor: MRW executa de verdade via SSH no Dell-B
+
+SOURCE: conversa direta (usuário pediu "implementação real" da integração
+MRW+Grid depois do NEXT-004/005 provarem SSH funcional)
+TARGET: NEXT-006
+ACTION: implementação direta (não passou por LAB — o padrão de transporte já
+estava validado em NEXT-004/005; isto é aplicar esse padrão ao contrato do
+MRW, não uma investigação nova)
+
+Contexto: o MRW já tem um contrato de execução transporte-agnóstico —
+`ResourceExecutor.execute(request) -> ResourceExecutionResult`, implementado
+por `ProcessExecutor` via `run_payload()` (JSON por stdin, JSON por stdout,
+timeout, mapeamento estruturado de falha). `run_payload` não sabe nem se
+importa se o `command` que ela roda é local — só precisa ser algo que
+`subprocess.Popen` consiga spawnar e conversar por pipe.
+
+Implementado: `RemoteSSHExecutor(ProcessExecutor)` em
+`meizex_mrw/dispatch/executors/remote_ssh.py` — troca só o `command` (usa
+`ssh` com a chave/conta do piloto Grid, terminando em
+`python -m meizex_mrw.dispatch.process_runner` do lado remoto). Nenhuma
+mudança no contrato `ResourceExecutor`/`ResourceExecutionRequest`/
+`ResourceExecutionResult`; `execute()` inteiro é herdado sem alteração.
+
+Correção colateral (bug real, não introduzido por esta mudança, mas exposto
+por ela): `ProcessExecutor._map_outcome` tinha `executor_kind="process"`
+fixo (era `@staticmethod`), então qualquer subclasse ficaria com atribuição
+de evidência errada. Corrigido para `executor_kind=self.kind` (agora
+instance method). Confirmado sem regressão:
+`pytest tests/test_milestone9_process_boundary.py` tem 1 falha
+pré-existente (`test_unknown_capability_transport_failure_is_structured`),
+reproduzida idêntica com `git stash` antes da mudança — não é desta
+integração, fora de escopo corrigir agora.
+
+Teste de prova de conceito: `MEIZEX_GRID/test_remote_ssh_executor.py`,
+rodado do Lenovo contra o Dell-B real (não mock). Resultado:
+`status: COMPLETED`, `executor_kind: remote_ssh`, PID remoto real
+(confirma que atravessou a rede, não é execução local disfarçada),
+latência ~1.2s por round-trip SSH.
+
+Limitações explícitas desta entrega (não resolvidas, registradas para
+não serem esquecidas):
+- Só testado no Dell-B — MRW exige Python ≥3.12; o Dell-A tem 3.11.9 e
+  **não serve** para rodar `meizex_mrw` sem atualizar o Python lá primeiro.
+- Nenhuma integração com o `ResourceDispatcher`/roteador real — o teste
+  instancia `RemoteSSHExecutor` diretamente, não passa pelo fluxo de
+  seleção de recursos do MRW. Decidir *quando* o roteador deve escolher
+  execução remota (por carga, por capacidade declarada, por afinidade) é
+  trabalho futuro, não resolvido aqui.
+- Um round-trip SSH por chamada, sem pool de conexão nem retry — aceitável
+  para prova de conceito, não para uso repetido em produção.
+- Chaves sem passphrase (mesma ressalva já registrada em NEXT-004).
+
+SCOPE: MEIZEX_ROUTER_WORKER/src/meizex_mrw/dispatch/executors/*,
+MEIZEX_GRID/test_remote_ssh_executor.py
+
+STATUS: concluído em 2026-09-07 — primeira execução real do MRW através
+da rede do Grid.
+
 ## NEXT-001 — Capacidade real das três máquinas via AIR
 
 Rodar o coletor do MEIZEX_AIR (snapshot de máquina: RAM efetiva, pressão de
