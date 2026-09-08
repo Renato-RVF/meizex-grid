@@ -3,6 +3,49 @@
 Escopo atual de execução. Itens aqui podem ser implementados/estendidos; nada
 fora daqui é implementação autorizada — apenas descoberta/proposta.
 
+## NEXT-008 — Despacho assíncrono no RemoteSSHExecutor
+
+Decorrente de conversa direta: "o orquestrador já consegue mandar um teste
+de estresse pesado pro Dell-B e seguir com outros sprints?" — a resposta
+honesta foi não, `execute()` é bloqueante. Este item resolve isso.
+
+Implementado `RemoteSSHExecutor.execute_async(request) -> RemoteJobHandle`:
+roda o `execute()` original (sem alteração nenhuma) numa thread daemon e
+devolve um `RemoteJobHandle` na hora. O handle tem `done()`/`poll()`
+(não-bloqueantes) e `wait(timeout)` (bloqueante, com timeout próprio,
+separado do timeout da requisição em si).
+
+Decisão de design: thread, não asyncio. O transporte de baixo nível
+(`subprocess.Popen(...).communicate()` em `dispatch/process_boundary.py`)
+já é bloqueante por natureza; reescrever isso pra `asyncio.create_subprocess_exec`
+seria uma mudança bem maior, fora do escopo deste pedido pontual. Thread é
+a escolha pragmática que resolve o problema real sem reescrever a camada
+de transporte.
+
+Limite explícito: **não há cancelamento**. Se ninguém chamar `wait()`/`poll()`
+de novo, a thread continua até terminar (ou até o `timeout_s` da própria
+requisição) — ela é daemon, então não trava o processo principal ao sair,
+mas não é possível matar um job em voo a partir do handle. Fica registrado
+como lacuna, não escondido.
+
+`execute_async` **não está integrado ao `ResourceDispatcher`** — o laço de
+execução do dispatcher continua 100% síncrono, usando `execute()` como
+sempre (essa é a garantia de não regressão: nada mudou no fluxo que já
+funcionava). `execute_async` é uma capacidade adicional para quem chama o
+executor diretamente, fora do laço do dispatcher — exatamente o cenário do
+orquestrador descrito na pergunta.
+
+Teste real (`MEIZEX_GRID/test_remote_ssh_async.py`), contra o Dell-B, sem
+mock: `execute_async` retornou em 0.6ms; o "outro trabalho" simulado rodou
+6 vezes enquanto o job real (848ms de latência) ainda estava em voo;
+`handle.wait()` trouxe o resultado completo (`status: COMPLETED`, PID
+remoto real) depois.
+
+SCOPE: MEIZEX_ROUTER_WORKER/src/meizex_mrw/dispatch/executors/remote_ssh.py,
+MEIZEX_GRID/test_remote_ssh_async.py
+
+STATUS: concluído em 2026-09-08.
+
 ## NEXT-007 — ResourceDispatcher roteia por recurso (local vs Grid), de verdade
 
 Decorrente de NEXT-006, mesma sessão. Implementado o que faltava para o
