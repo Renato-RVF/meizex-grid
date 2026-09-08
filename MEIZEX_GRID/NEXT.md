@@ -3,6 +3,49 @@
 Escopo atual de execução. Itens aqui podem ser implementados/estendidos; nada
 fora daqui é implementação autorizada — apenas descoberta/proposta.
 
+## NEXT-010 — Limite de concorrência por nó no RemoteSSHExecutor
+
+Decorrente da lacuna registrada em NEXT-006/008: nada impedia disparar N
+jobs simultâneos contra o mesmo nó do Grid sem controle nenhum.
+
+Implementado `max_concurrent` (padrão 4) no construtor do
+`RemoteSSHExecutor`: um `threading.Semaphore` limita quantos jobs rodam
+**de verdade** (SSH spawnado) ao mesmo tempo contra aquele nó. Chamar
+`execute_async()` continua não-bloqueante mesmo acima do limite — os jobs
+extras ficam esperando o semáforo dentro da própria thread de fundo deles,
+não na chamada do usuário.
+
+Cancelar um job ainda na fila (`handle.cancel()` antes de `started()` ==
+True) funciona: quando a vez dele chega no semáforo, ele checa
+`cancelled` e nunca chega a abrir SSH — resultado
+`status: FAILED`, evidência `CANCELLED_BEFORE_START`. **Mas** isso não é
+instantâneo nem fura fila: a thread do job cancelado ainda espera atrás
+de quem estiver ocupando os slots antes dele (um semáforo simples não tem
+mecanismo de prioridade/pular fila). O que se ganha cancelando na fila é
+não gastar o round-trip SSH daquele job específico quando sua vez chegar
+— não uma resposta instantânea.
+
+Teste real (`MEIZEX_GRID/test_remote_ssh_concurrency.py`), contra o Dell-B,
+sem mock, duas partes:
+
+1. `max_concurrent=2`, 5 jobs submetidos de uma vez: as 5 chamadas
+   `execute_async` retornaram em 2.2ms total (não bloquearam); no máximo 2
+   rodando ao mesmo tempo, amostrado durante a execução; tempo total 2.53s
+   — compatível com ~3 "ondas" de round-trips reais de ~0.85s cada
+   (5 jobs / 2 slots), não um único round-trip (o que provaria que o
+   limite não fez nada); todos os 5 completaram com sucesso.
+2. `max_concurrent=1`, um job ocupando o único slot, um segundo submetido
+   e cancelado enquanto ainda na fila (`started()` confirmado `False` no
+   momento do cancel): terminou com `status: FAILED` e evidência
+   `CANCELLED_BEFORE_START`, sem nunca ter spawnado SSH — mas levou
+   ~817ms porque esperou o slot liberar antes de checar o cancelamento
+   (comportamento correto, documentado, não bug).
+
+SCOPE: MEIZEX_ROUTER_WORKER/src/meizex_mrw/dispatch/executors/remote_ssh.py,
+MEIZEX_GRID/test_remote_ssh_concurrency.py
+
+STATUS: concluído em 2026-09-08.
+
 ## NEXT-009 — Cancelamento real de job assíncrono no RemoteSSHExecutor
 
 Decorrente de NEXT-008: sem cancelamento, um job assíncrono travado (ex.:

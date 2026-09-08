@@ -66,6 +66,7 @@ class RemoteJobHandle:
     def __init__(self, request: ResourceExecutionRequest) -> None:
         self.request = request
         self._done = threading.Event()
+        self._started = threading.Event()
         self._result: ResourceExecutionResult | None = None
         self._proc_lock = threading.Lock()
         self._proc: subprocess.Popen[str] | None = None
@@ -74,6 +75,12 @@ class RemoteJobHandle:
     def done(self) -> bool:
         """Non-blocking: True once the background job has a result."""
         return self._done.is_set()
+
+    def started(self) -> bool:
+        """Non-blocking: True once the job actually began running (past any
+        max_concurrent queueing) — False means it is still queued, waiting
+        for a concurrency slot on its executor."""
+        return self._started.is_set()
 
     @property
     def cancelled(self) -> bool:
@@ -103,14 +110,17 @@ class RemoteJobHandle:
         return self._result
 
     def cancel(self) -> bool:
-        """Kill the local ssh process for this job, if it is still running.
+        """Cancel this job, running or still queued behind max_concurrent.
 
-        Returns True if a kill signal was actually sent (the job was still
-        in flight and the ssh process had already been captured), False
-        otherwise (already finished, or the process was not spawned yet —
-        there is a narrow window right after execute_async() starts the
-        thread where Popen has not run yet; call cancel() again if that
-        matters, or accept the job runs in that case).
+        Returns True if a kill signal was actually sent to an in-flight
+        ssh process. Returns False in every other case (already finished;
+        not started yet and still queued — but the queued case IS handled:
+        marking ``cancelled`` here makes the executor skip it entirely
+        once its turn comes, without ever spawning ssh, ver
+        RemoteSSHExecutor.execute_async). There is one narrow window this
+        does not cover: between the job actually starting and its ssh
+        process being captured (on_spawn fires right after Popen — call
+        cancel() again if that race matters to the caller).
         """
         self._cancelled = True
         with self._proc_lock:
@@ -127,6 +137,9 @@ class RemoteJobHandle:
         with self._proc_lock:
             self._proc = proc
 
+    def _mark_started(self) -> None:
+        self._started.set()
+
     def _finish(self, result: ResourceExecutionResult) -> None:
         self._result = result
         self._done.set()
@@ -138,6 +151,8 @@ class RemoteSSHExecutor(ProcessExecutor):
     Reuses ProcessExecutor's execute()/run_payload() unchanged — only the
     spawned command differs (ssh instead of a local python invocation).
     """
+
+    DEFAULT_MAX_CONCURRENT = 4
 
     def __init__(
         self,
@@ -152,6 +167,7 @@ class RemoteSSHExecutor(ProcessExecutor):
         timeout_s: float | None = None,
         extra_env: dict[str, str] | None = None,
         event_store: EventStore | None = None,
+        max_concurrent: int = DEFAULT_MAX_CONCURRENT,
     ) -> None:
         remote_cmd = (
             f'cd /d "{remote_workdir}" && set PYTHONPATH=src && '
@@ -178,6 +194,14 @@ class RemoteSSHExecutor(ProcessExecutor):
         )
         self._host = host
         self.resource_id = resource_id
+        if max_concurrent < 1:
+            raise ValueError(f"max_concurrent must be >= 1, got {max_concurrent}")
+        self.max_concurrent = max_concurrent
+        # Bounds how many jobs actually run (ssh spawned) against THIS node
+        # at once. A caller can still submit as many as it wants via
+        # execute_async() without ever blocking -- extra jobs queue on this
+        # semaphore inside their own background thread, not on the caller.
+        self._concurrency_gate = threading.Semaphore(max_concurrent)
 
     @property
     def kind(self) -> str:
@@ -192,21 +216,34 @@ class RemoteSSHExecutor(ProcessExecutor):
         return step.execution_boundary == "PROCESS" and step.resource == self.resource_id
 
     def execute_async(self, request: ResourceExecutionRequest) -> RemoteJobHandle:
-        """Submit ``request`` for background execution; returns immediately.
+        """Submit ``request`` for background execution; returns immediately,
+        regardless of how many jobs are already queued or running.
+
+        At most ``self.max_concurrent`` jobs actually run (ssh spawned)
+        against THIS node at once — extras wait on an internal semaphore,
+        inside their own background thread, never blocking the caller.
+        Cancelling a still-queued job (``handle.cancel()`` before its turn
+        comes) makes it skip execution entirely once the slot frees up —
+        it never spawns ssh.
 
         Runs the unmodified ``execute()`` (same SSH round-trip, same
-        timeout_s, same structured result) on a daemon thread. Use this
-        when the CALLER (not the ResourceDispatcher's synchronous step
-        loop) wants to hand off a job and keep doing other work — e.g. an
-        orchestrator sending a heavy stress test to the Grid while it
-        moves on to other sprints. The dispatcher itself keeps using the
-        synchronous execute(); this method is not wired into can_handle()
-        or the dispatcher's selection loop.
+        timeout_s, same structured result) once its concurrency slot is
+        acquired. Use this when the CALLER (not the ResourceDispatcher's
+        synchronous step loop) wants to hand off a job and keep doing other
+        work — e.g. an orchestrator sending a heavy stress test to the Grid
+        while it moves on to other sprints. The dispatcher itself keeps
+        using the synchronous execute(); this method is not wired into
+        can_handle() or the dispatcher's selection loop.
         """
         handle = RemoteJobHandle(request)
 
         def _run() -> None:
-            handle._finish(self.execute(request, on_spawn=handle._capture_proc))
+            with self._concurrency_gate:
+                if handle.cancelled:
+                    handle._finish(self._cancelled_before_start_result(request))
+                    return
+                handle._mark_started()
+                handle._finish(self.execute(request, on_spawn=handle._capture_proc))
 
         thread = threading.Thread(
             target=_run,
@@ -215,6 +252,23 @@ class RemoteSSHExecutor(ProcessExecutor):
         )
         thread.start()
         return handle
+
+    def _cancelled_before_start_result(
+        self, request: ResourceExecutionRequest
+    ) -> ResourceExecutionResult:
+        """A queued job cancelled before its concurrency slot ever opened:
+        no ssh process ever spawned, so ProcessExecutor._map_outcome's
+        machinery does not apply — build the structured result by hand."""
+        return ResourceExecutionResult(
+            step_id=request.step_id or f"{request.step.capability}-{self.kind}",
+            resource_id=request.step.resource,
+            capability=request.step.capability,
+            executor_kind=self.kind,
+            status="FAILED",
+            output=None,
+            evidence=[{"kind": "process_boundary", "status": "CANCELLED_BEFORE_START"}],
+            error="cancelled while queued behind max_concurrent -- never spawned ssh",
+        )
 
 
 __all__ = ["RemoteSSHExecutor", "RemoteJobHandle"]
