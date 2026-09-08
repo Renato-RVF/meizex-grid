@@ -1,0 +1,21 @@
+{
+  "_nota": "Trecho isolado da entrada do Dell-B no local_capability_registry.json real do MRW (nao versionado aqui inteiro por conter outras entradas sem relacao com o Grid, ex. modelos LLM locais). Ver NEXT-011.",
+  "id": "grid.dell-b.remote-ssh",
+  "kind": "tool",
+  "runtime": "OpenSSH (MEIZEX Grid pilot) -> Python 3.13.3 on Dell-B",
+  "artifact": "meizex_mrw.dispatch.process_runner (remote, via RemoteSSHExecutor)",
+  "declared_capabilities": ["routing"],
+  "validated_capabilities": {},
+  "input_modalities": ["text"],
+  "output_modalities": ["text"],
+  "local": false,
+  "location": "grid",
+  "cloud_required": false,
+  "tool_use": false,
+  "hardware_requirements": {"host": "Dell-B, 192.168.15.42, 32GB RAM, 10c/12t"},
+  "observed_performance": {"remote_ssh_dispatch": "COMPLETED, ~0.8-1.2s round-trip per call, manually observed (not a benchmark suite)"},
+  "manuals": ["../MEIZEX_GRID/NEXT.md"],
+  "source": ["MEIZEX_GRID/test_dispatcher_remote_ssh_routing.py", "MEIZEX_GRID/test_remote_ssh_executor.py"],
+  "status": "AVAILABLE",
+  "execution_boundary": "PROCESS"
+}

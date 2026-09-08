@@ -90,7 +90,23 @@ def _resolve_candidates(
         if profile:
             cloud_allowed = cloud_allowed and not profile.local_only and profile.cloud_allowed
 
-        if not cloud_allowed and (resource.cloud_required or not resource.local):
+        # Grid (a MEIZEX Grid node — trusted LAN machine, neither this
+        # process nor a cloud provider) is forbidden by default too, same
+        # spirit as cloud: opt-in per profile, not a silent default. See
+        # MEIZEX_GRID/NEXT-011 for why this needed its own category instead
+        # of overloading `local`/`cloud_required`.
+        grid_allowed = bool(profile and profile.grid_allowed)
+
+        if resource.location == "grid":
+            if not grid_allowed:
+                exclusion = "grid_forbidden"
+        elif resource.location == "cloud":
+            if not cloud_allowed:
+                exclusion = "cloud_forbidden"
+        elif resource.location == "local":
+            pass  # explicitly local: always policy-eligible on this axis
+        # location is None: legacy resource, preserve exact prior behavior.
+        elif not cloud_allowed and (resource.cloud_required or not resource.local):
             exclusion = "cloud_forbidden"
 
         # Profile resource kind constraint

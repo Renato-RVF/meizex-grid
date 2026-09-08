@@ -40,6 +40,17 @@ MinimumValidationLevel = Literal[
     "VALIDATED_REQUIRED",
 ]
 
+# MEIZEX_GRID integration: the router historically only knew "local" (this
+# machine) or "cloud" (a provider outside the trust boundary) -- see
+# MEIZEX_GRID/NEXT.md NEXT-007 for the finding that a Grid node (a trusted
+# LAN machine, neither the local process nor a cloud provider) had nowhere
+# honest to sit in that binary. `location` is additive: every existing
+# registry entry has it unset (None), which preserves the legacy
+# local/cloud_required boolean behavior exactly (see router._resolve_candidates).
+# Only a resource that explicitly declares `location: "grid"` is affected by
+# the new grid_allowed gate.
+ResourceLocation = Literal["local", "grid", "cloud"]
+
 
 class CapabilityResource(BaseModel):
     """One resource entry from the capability registry (typed read view)."""
@@ -54,6 +65,7 @@ class CapabilityResource(BaseModel):
     output_modalities: list[str] = Field(default_factory=list)
     local: bool = True
     cloud_required: bool = False
+    location: ResourceLocation | None = None
     tool_use: bool = False
     context_length: int | None = None
     quantization: str | None = None

@@ -42,6 +42,13 @@ class ExecutionProfile(BaseModel):
     allowed_tools: list[str] = Field(default_factory=list)
     cloud_allowed: bool = False
     local_only: bool = True
+    grid_allowed: bool = False
+    """Whether the router may auto-select a resource declared
+    `location: "grid"` (a MEIZEX Grid node, see MEIZEX_GRID/NEXT-011) for a
+    mission, instead of it staying a manual/orchestrator decision. Defaults
+    to False: routing to the Grid requires an explicit opt-in per profile,
+    mirroring how cloud_allowed already works for cloud resources. This is
+    the "configurável: automático ou à decisão do usuário" knob."""
     minimum_validation_level: str | None = None
     allowed_resource_kinds: list[str] | None = None
     hardware_constraints: dict[str, Any] = Field(default_factory=dict)

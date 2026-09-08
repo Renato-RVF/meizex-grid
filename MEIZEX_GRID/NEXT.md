@@ -3,6 +3,67 @@
 Escopo atual de execução. Itens aqui podem ser implementados/estendidos; nada
 fora daqui é implementação autorizada — apenas descoberta/proposta.
 
+## NEXT-011 — Roteador escolhe o Grid sozinho, de forma configurável
+
+Fecha a lacuna registrada em NEXT-007: o Capability Router só modelava
+`local`/`cloud`. Pedido explícito do usuário: "deixa configurável —
+automático ou à decisão do usuário/orquestrador".
+
+Implementado, tudo aditivo (nenhum recurso existente muda de
+comportamento):
+
+1. `CapabilityResource.location: Literal["local","grid","cloud"] | None`
+   — novo campo opcional. `None` (todo recurso já registrado) preserva
+   exatamente o comportamento antigo via `local`/`cloud_required`. Só um
+   recurso que declara `location: "grid"` entra no caminho novo.
+2. `ExecutionProfile.grid_allowed: bool = False` — o botão de
+   configuração pedido. `False` (padrão) = Grid nunca é escolhido sozinho,
+   fica na decisão manual do usuário/orquestrador (como já era até agora).
+   `True` = o roteador pode escolher um recurso do Grid automaticamente
+   pra missões compatíveis. Mesmo padrão que `cloud_allowed` já usa —
+   consistente com o resto do sistema, não uma exceção especial.
+3. `router._resolve_candidates`: recurso com `location: "grid"` só passa
+   se `profile.grid_allowed` for `True`; senão excluído com
+   `"grid_forbidden"` (mesmo padrão de auditoria que `"cloud_forbidden"`).
+4. Dell-B registrado honestamente em
+   `MEIZEX_ROUTER_WORKER/docs/local_capability_registry.json`:
+   `declared_capabilities: ["routing"]` (capacidade genérica de
+   processamento determinístico, o que o `process_runner` remoto de fato
+   faz), `status: "AVAILABLE"` → nível de evidência **OBSERVED**, não
+   `VALIDATED` (uma prova de conceito manual não é uma suíte de
+   validação — a mesma disciplina que o resto do registro já segue).
+
+Suíte de testes completa do MRW rodada antes de prosseguir: **545 passaram,
+5 pulados, 0 falhas** — nenhuma regressão em nada existente.
+
+Teste real (`MEIZEX_GRID/test_router_grid_auto_selection.py`), sem mock,
+três partes:
+
+1. `route(missao)` sem perfil (ou `grid_allowed=False`): Grid nunca
+   selecionado, excluído com `"grid_forbidden"`.
+2. `route(missao, profile=perfil_com_grid_allowed_true)`: o roteador
+   **escolhe o Dell-B sozinho**, a partir só do texto da missão — não foi
+   montado à mão.
+3. O `CapabilityRouteResult` de verdade (produzido pelo roteador, não por
+   mim) foi despachado contra o Dell-B real: `status: COMPLETED`, PID
+   remoto confirmado.
+
+Achado colateral, documentado e não escondido: o `InvocationResolver`
+determinístico do MRW ainda não sabe montar a invocação para capacidades
+de fronteira `PROCESS` fora das duas que já conhecia
+(`filesystem_read`/`filesystem_discovery`) — precisou de um contorno
+manual no teste (preencher `step.invocation` antes do despacho). Isso é
+uma lacuna separada e pré-existente do planejador, não desta mudança;
+registrado aqui para não ser esquecido, não resolvido agora.
+
+SCOPE: MEIZEX_ROUTER_WORKER/src/meizex_mrw/capabilities/models.py,
+MEIZEX_ROUTER_WORKER/src/meizex_mrw/capabilities/router.py,
+MEIZEX_ROUTER_WORKER/src/meizex_mrw/profiles/schema.py,
+MEIZEX_ROUTER_WORKER/docs/local_capability_registry.json,
+MEIZEX_GRID/test_router_grid_auto_selection.py
+
+STATUS: concluído em 2026-09-08.
+
 ## NEXT-010 — Limite de concorrência por nó no RemoteSSHExecutor
 
 Decorrente da lacuna registrada em NEXT-006/008: nada impedia disparar N
