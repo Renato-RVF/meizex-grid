@@ -3,6 +3,61 @@
 Escopo atual de execução. Itens aqui podem ser implementados/estendidos; nada
 fora daqui é implementação autorizada — apenas descoberta/proposta.
 
+## NEXT-007 — ResourceDispatcher roteia por recurso (local vs Grid), de verdade
+
+Decorrente de NEXT-006, mesma sessão. Implementado o que faltava para o
+`ResourceDispatcher` (não só o executor isolado) escolher corretamente entre
+executar local ou no Grid:
+
+- `RemoteSSHExecutor.can_handle()` agora exige `step.resource == self.resource_id`
+  (antes herdava o `can_handle` genérico do `ProcessExecutor`, que só olha
+  `execution_boundary == "PROCESS"` — com dois executores desse tipo na lista,
+  o primeiro roubaria todo passo PROCESS, não importa a máquina alvo real).
+- Teste real (`MEIZEX_GRID/test_dispatcher_remote_ssh_routing.py`): dois
+  passos no mesmo plano, um endereça o recurso do Dell-B, outro um recurso
+  local — o dispatcher mandou cada um pro executor certo (`remote_ssh` com
+  PID remoto real; `process` com PID local real). Não é mock.
+
+**Achado importante, não resolvido — motivo real de não ter automação por
+missão ainda:** o Capability Router (`capabilities/router.py`) só modela
+duas categorias de recurso — `local: bool` e `cloud_required: bool`. Um
+recurso com `local=False` é excluído com `"cloud_forbidden"`, a não ser que
+a missão permita cloud explicitamente. O Dell-B **não é** a máquina local
+(seria falso declarar `local=true`) e **não é** nuvem (forçar via
+`cloud_allowed` quebraria a semântica de segurança que esse flag protege —
+ele existe para manter o MRW "local-first", não para modelar rede confiável
+vs. internet). **O modelo de dados não tem uma terceira categoria para
+"rede confiável, máquina remota".**
+
+Por isso este item testa a camada de **despacho** (`ResourceDispatcher`,
+que já recebe um `CapabilityRouteResult` pronto) e não a camada de
+**classificação de missão** (`route()`, que decidiria automaticamente,
+a partir do texto da missão, se deve usar o Grid). Um `ExecutionStep`
+apontando pro Dell-B foi montado manualmentes no teste, não gerado pelo
+roteador de verdade.
+
+Para fechar essa lacuna de verdade (não feito aqui, é decisão de design,
+não implementação apressada):
+1. Estender `CapabilityResource`/`CandidateResource` com uma terceira
+   categoria de localização (ex.: `location: Literal["local","grid","cloud"]`
+   substituindo o `local: bool` binário), preservando a semântica atual de
+   `cloud_forbidden` intacta para recursos de nuvem de verdade.
+2. Registrar o Dell-B (e futuramente Dell-A/outros nós) no
+   `docs/local_capability_registry.json` do MRW com essa nova categoria,
+   `execution_boundary: "PROCESS"`, e `declared_capabilities` honestas
+   (sem inflar para `VALIDATED` — uma prova de conceito manual não é uma
+   suíte de validação).
+3. Decidir a política de *quando* preferir o Grid sobre execução local
+   (carga, capacidade declarada pelo AIR, afinidade) — isto é uma decisão
+   de produto/arquitetura, não uma linha de código.
+
+SCOPE: MEIZEX_ROUTER_WORKER/src/meizex_mrw/dispatch/executors/remote_ssh.py,
+MEIZEX_GRID/test_dispatcher_remote_ssh_routing.py
+
+STATUS: concluído em 2026-09-07 (camada de despacho); classificação
+automática por missão explicitamente NÃO implementada — motivo real
+documentado acima, não é procrastinação.
+
 ## NEXT-006 — RemoteSSHExecutor: MRW executa de verdade via SSH no Dell-B
 
 SOURCE: conversa direta (usuário pediu "implementação real" da integração

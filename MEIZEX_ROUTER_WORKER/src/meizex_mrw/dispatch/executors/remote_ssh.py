@@ -23,6 +23,7 @@ call, same as the local ProcessExecutor's single subprocess round-trip.
 
 from __future__ import annotations
 
+from meizex_mrw.capabilities.models import ExecutionStep
 from meizex_mrw.dispatch.executors.process import ProcessExecutor
 from meizex_mrw.events.store import EventStore
 
@@ -37,6 +38,7 @@ class RemoteSSHExecutor(ProcessExecutor):
     def __init__(
         self,
         *,
+        resource_id: str,
         host: str,
         ssh_user: str,
         ssh_key_path: str,
@@ -71,10 +73,19 @@ class RemoteSSHExecutor(ProcessExecutor):
             event_store=event_store,
         )
         self._host = host
+        self.resource_id = resource_id
 
     @property
     def kind(self) -> str:
         return "remote_ssh"
+
+    def can_handle(self, step: ExecutionStep) -> bool:
+        # Stricter than ProcessExecutor's plain boundary check: this executor
+        # only claims steps explicitly addressed to ITS node. Without this,
+        # any PROCESS-boundary step would be grabbed by whichever executor
+        # happens to be first in the dispatcher's list, regardless of which
+        # machine it actually targets -- silently wrong for a multi-node Grid.
+        return step.execution_boundary == "PROCESS" and step.resource == self.resource_id
 
 
 __all__ = ["RemoteSSHExecutor"]
