@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "meizex-mrw"
+version = "0.1.0"
+description = "MEIZEX Router Worker — headless-first local AI routing/governance/execution layer"
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.28,<1",
+    "pydantic>=2.13,<3",
+    "PyYAML>=6,<7",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-cov>=5",
+    "ruff>=0.6",
+]
+
+[project.scripts]
+mrw = "meizex_mrw.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# The shared Windows temp dir (%TEMP%\pytest-of-<user>) can accumulate
+# permission-locked leftovers from unrelated sessions that break the
+# tmp_path fixture outright. Keep pytest's basetemp inside the project
+# instead of depending on that shared, uncontrolled location.
+addopts = "--basetemp=.pytest_tmp"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
