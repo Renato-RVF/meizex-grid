@@ -1,0 +1,505 @@
+<title>Grid e MRW</title>
+<meta name="description" content="Manual de referência: glossário, arquitetura e respostas às quatro perguntas de design sobre o MEIZEX Grid e o MRW.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #f6f5f2;
+    --surface: #ffffff;
+    --surface-2: #eeece6;
+    --ink: #1b1f1e;
+    --ink-soft: #4a5250;
+    --ink-faint: #7c847f;
+    --line: #d8d5cc;
+    --accent: #1f6f6a;
+    --accent-ink: #0f3f3c;
+    --accent-soft: #e2efec;
+    --amber: #9a6a1f;
+    --amber-soft: #f3e9d6;
+    --red: #a13d34;
+    --red-soft: #f4e2df;
+    --code-bg: #eef1ef;
+    --shadow: 0 1px 2px rgba(20, 30, 28, 0.06), 0 8px 24px rgba(20, 30, 28, 0.05);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14181a;
+      --surface: #1b2124;
+      --surface-2: #212a2d;
+      --ink: #e9ede9;
+      --ink-soft: #b3bcb7;
+      --ink-faint: #7f8b86;
+      --line: #2c3639;
+      --accent: #5fc9bd;
+      --accent-ink: #bdece3;
+      --accent-soft: #1c3532;
+      --amber: #e0ac5c;
+      --amber-soft: #3a2f1c;
+      --red: #e0847a;
+      --red-soft: #3a2320;
+      --code-bg: #202a2c;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14181a;
+    --surface: #1b2124;
+    --surface-2: #212a2d;
+    --ink: #e9ede9;
+    --ink-soft: #b3bcb7;
+    --ink-faint: #7f8b86;
+    --line: #2c3639;
+    --accent: #5fc9bd;
+    --accent-ink: #bdece3;
+    --accent-soft: #1c3532;
+    --amber: #e0ac5c;
+    --amber-soft: #3a2f1c;
+    --red: #e0847a;
+    --red-soft: #3a2320;
+    --code-bg: #202a2c;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  code, .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+
+  .grid-texture {
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 28px 28px;
+    opacity: 0.35;
+  }
+
+  .shell {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+
+  header.hero {
+    position: relative;
+    padding: 56px 48px 40px;
+    border-bottom: 1px solid var(--line);
+    overflow: hidden;
+  }
+  header.hero .grid-texture {
+    position: absolute; inset: 0;
+    mask-image: linear-gradient(to bottom, black, transparent 85%);
+  }
+  header.hero .hero-inner { position: relative; }
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12.5px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 14px;
+  }
+  h1 {
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 700;
+    margin: 0 0 12px;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+  .lede {
+    font-size: 17px;
+    color: var(--ink-soft);
+    max-width: 62ch;
+    margin: 0;
+  }
+  .meta-row {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-top: 22px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12.5px;
+    color: var(--ink-faint);
+  }
+  .meta-row span { white-space: nowrap; }
+  .meta-row b { color: var(--ink-soft); font-weight: 500; }
+
+  nav.toc {
+    padding: 32px 20px 40px 48px;
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+  }
+  nav.toc .toc-label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 14px;
+  }
+  nav.toc ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    counter-reset: toc;
+    border-left: 1px solid var(--line);
+  }
+  nav.toc li { counter-increment: toc; }
+  nav.toc a {
+    display: block;
+    padding: 7px 0 7px 16px;
+    margin-left: -1px;
+    border-left: 1px solid transparent;
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 13.5px;
+  }
+  nav.toc a::before {
+    content: counter(toc, decimal-leading-zero) " ";
+    font-family: "IBM Plex Mono", monospace;
+    color: var(--ink-faint);
+    margin-right: 6px;
+    font-size: 12px;
+  }
+  nav.toc a:hover { color: var(--accent-ink); border-left-color: var(--accent); }
+
+  main { padding: 40px 48px 100px; min-width: 0; }
+  section { margin-bottom: 56px; scroll-margin-top: 24px; }
+  section > h2 {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+  }
+  section > .section-sub {
+    color: var(--ink-faint);
+    font-size: 14px;
+    margin: 0 0 24px;
+  }
+  p { max-width: 68ch; margin: 0 0 14px; }
+  p.wide { max-width: none; }
+  a { color: var(--accent-ink); }
+
+  .callout {
+    border: 1px solid var(--line);
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+    margin: 20px 0;
+  }
+  .callout.accent { border-color: var(--accent); background: var(--accent-soft); }
+  .callout.amber { border-left: 3px solid var(--amber); background: var(--amber-soft); }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* Glossary */
+  dl.glossary { margin: 0; }
+  dl.glossary > div {
+    display: grid;
+    grid-template-columns: minmax(160px, 220px) 1fr;
+    gap: 4px 24px;
+    padding: 16px 0;
+    border-top: 1px solid var(--line);
+  }
+  dl.glossary > div:first-child { border-top: none; }
+  dl.glossary dt {
+    font-family: "IBM Plex Mono", monospace;
+    font-weight: 500;
+    font-size: 14.5px;
+    color: var(--accent-ink);
+  }
+  dl.glossary dt .full {
+    display: block;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-weight: 400;
+    font-size: 12px;
+    color: var(--ink-faint);
+    margin-top: 2px;
+  }
+  dl.glossary dd { margin: 0; color: var(--ink-soft); font-size: 14.5px; max-width: 60ch; }
+  dl.glossary dd code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; font-size: 12.5px; }
+
+  /* Architecture diagram */
+  .diagram-wrap { overflow-x: auto; margin: 24px 0; }
+  .diagram-wrap svg { display: block; min-width: 640px; }
+
+  /* Q&A */
+  .qa { border: 1px solid var(--line); background: var(--surface); border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 20px; overflow: hidden; }
+  .qa-q { display: flex; gap: 14px; align-items: baseline; padding: 20px 24px 0; }
+  .qa-num { font-family: "IBM Plex Mono", monospace; color: var(--accent); font-size: 13px; font-weight: 600; }
+  .qa-q h3 { font-size: 17px; margin: 0; font-weight: 600; text-wrap: balance; }
+  .qa-a { padding: 12px 24px 22px 62px; color: var(--ink-soft); }
+  .qa-a p { max-width: 66ch; }
+  .verdict {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin: 10px 0 4px;
+  }
+  .verdict.independent { background: var(--accent-soft); color: var(--accent-ink); }
+  .verdict.mixed { background: var(--amber-soft); color: var(--amber); }
+  .verdict.separate { background: var(--red-soft); color: var(--red); }
+
+  /* File index */
+  table.files { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table.files th { text-align: left; font-family: "IBM Plex Mono", monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-faint); padding: 0 12px 8px; border-bottom: 1px solid var(--line); }
+  table.files td { padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.files td.path code { font-size: 12.5px; }
+  table.files tr:last-child td { border-bottom: none; }
+
+  .pill { display: inline-block; font-family: "IBM Plex Mono", monospace; font-size: 11px; padding: 2px 8px; border-radius: 5px; background: var(--surface-2); color: var(--ink-soft); }
+  .pill.grid { background: var(--accent-soft); color: var(--accent-ink); }
+  .pill.mrw { background: var(--amber-soft); color: var(--amber); }
+
+  footer {
+    padding: 28px 48px 60px;
+    border-top: 1px solid var(--line);
+    color: var(--ink-faint);
+    font-size: 13px;
+  }
+
+  @media (max-width: 860px) {
+    .shell { grid-template-columns: 1fr; }
+    nav.toc { position: static; max-height: none; padding: 20px 24px 0; }
+    header.hero, main, footer { padding-left: 24px; padding-right: 24px; }
+    dl.glossary > div { grid-template-columns: 1fr; }
+    .qa-a { padding-left: 24px; }
+  }
+</style>
+
+<header class="hero">
+  <div class="grid-texture"></div>
+  <div class="hero-inner">
+    <p class="eyebrow">Manual de referência · meizex-grid</p>
+    <h1>Grid e MRW: glossário e arquitetura</h1>
+    <p class="lede">Um mapa do que foi construído — o que cada peça faz, como o Grid e o MRW se relacionam, e quatro respostas diretas sobre o que isso pode virar.</p>
+    <div class="meta-row">
+      <span><b>Sessão:</b> 2026-09-06 a 09-08</span>
+      <span><b>Repositório:</b> github.com/Renato-RVF/meizex-grid</span>
+      <span><b>Itens:</b> DOT-001–007 · NEXT-001–011</span>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="toc">
+    <p class="toc-label">Neste manual</p>
+    <ol>
+      <li><a href="#o-que-e-cada-coisa">O que é cada coisa</a></li>
+      <li><a href="#glossario">Glossário</a></li>
+      <li><a href="#arquitetura">Arquitetura: quem depende de quem</a></li>
+      <li><a href="#perguntas">As quatro perguntas</a></li>
+      <li><a href="#onde-esta">Onde está cada arquivo</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <section id="o-que-e-cada-coisa">
+      <h2>O que é cada coisa, em uma frase</h2>
+      <p class="section-sub">Antes do glossário — a distinção que resolve a maior confusão.</p>
+      <div class="callout accent">
+        <p><span class="pill grid">GRID</span> é <b>infraestrutura</b>: as três máquinas da rede, descobertas, medidas e acessíveis por SSH com uma conta restrita. Não decide nada, não roteia missão nenhuma — só existe e responde quando chamado.</p>
+        <p><span class="pill mrw">MRW</span> é um <b>motor de execução e roteamento</b> que decide o quê rodar, onde, e com qual modelo — e que, desde a NEXT-006, sabe usar o Grid como um dos lugares onde pode executar. O MRW é o primeiro cliente do Grid, não o dono dele.</p>
+      </div>
+    </section>
+
+    <section id="glossario">
+      <h2>Glossário</h2>
+      <p class="section-sub">Termos e siglas usados nos itens DOT/NEXT deste projeto, na ordem em que fazem mais sentido juntos.</p>
+      <dl class="glossary">
+        <div>
+          <dt>Grid<span class="full">MEIZEX Grid</span></dt>
+          <dd>As três máquinas da rede doméstica (Lenovo, Dell-A, Dell-B) disponibilizadas como recursos de execução: identidade de rede confirmada, capacidade real medida, código sincronizado, acesso remoto via SSH restrito. Vive em <code>MEIZEX_GRID/</code>.</dd>
+        </div>
+        <div>
+          <dt>MRW<span class="full">MEIZEX Router Worker</span></dt>
+          <dd>O motor de roteamento e execução do ecossistema. Decide qual recurso (modelo, ferramenta, ou — agora — nó do Grid) atende cada missão, e executa. Vive em <code>MEIZEX_ROUTER_WORKER/</code>, fora do subconjunto público do Grid (mas com uma cópia parcial lá, para os testes reais).</dd>
+        </div>
+        <div>
+          <dt>AIR<span class="full">MEIZEX_AIR</span></dt>
+          <dd>Sensor de capacidade de máquina: RAM efetiva (não só nominal), pressão de CPU/processos, executores encontrados (Python, PowerShell, runtimes de inferência). O Grid usa o AIR para medir cada nó antes de confiar nele.</dd>
+        </div>
+        <div>
+          <dt>DOT / NEXT / LAB / ARC</dt>
+          <dd>Protocolo de autoridade do projeto. <code>DOT.md</code> = decisões aceitas (não editar sem supersessão). <code>NEXT.md</code> = trabalho autorizado e seu resultado. <code>LAB.md</code> = hipóteses sem autoridade ainda. <code>ARC.md</code> = decisões superadas, preservadas com o motivo.</dd>
+        </div>
+        <div>
+          <dt>ResourceExecutor</dt>
+          <dd>O contrato do MRW que qualquer executor implementa: <code>execute(request) → ResourceExecutionResult</code>. Transporte-agnóstico por design — não sabe nem precisa saber se roda local ou na rede.</dd>
+        </div>
+        <div>
+          <dt>ProcessExecutor</dt>
+          <dd>Implementação padrão do <code>ResourceExecutor</code> que roda um comando como processo filho local, com JSON por stdin/stdout, timeout e ambiente restrito por allowlist.</dd>
+        </div>
+        <div>
+          <dt>RemoteSSHExecutor</dt>
+          <dd>Especialização do <code>ProcessExecutor</code> que troca o comando local por um comando SSH — o mesmo contrato, rodando num nó do Grid. Ganhou despacho assíncrono, cancelamento e limite de concorrência por nó (NEXT-008 a 010).</dd>
+        </div>
+        <div>
+          <dt>ResourceDispatcher</dt>
+          <dd>Laço de execução síncrono do MRW: recebe um plano com vários passos, escolhe o executor certo para cada um (por <code>resource_id</code>, não só por tipo) e roda em sequência.</dd>
+        </div>
+        <div>
+          <dt>Capability Router<span class="full">capabilities/router.py</span></dt>
+          <dd>Camada de <em>classificação de missão</em>: lê o texto de uma missão, decide quais capacidades ela precisa, e escolhe o melhor recurso do registro para cada uma — sem executar nada. É essa camada que aprendeu a escolher o Grid sozinha (NEXT-011).</dd>
+        </div>
+        <div>
+          <dt><code>location</code></dt>
+          <dd>Campo novo em cada recurso do registro do MRW: <code>"local"</code>, <code>"grid"</code> ou <code>"cloud"</code>. Antes só existia local/cloud — não havia onde um nó confiável da rede se encaixasse honestamente.</dd>
+        </div>
+        <div>
+          <dt><code>grid_allowed</code></dt>
+          <dd>Campo de perfil de execução (<code>ExecutionProfile</code>). <code>False</code> por padrão: o Grid nunca é escolhido sozinho, fica na decisão manual. <code>True</code>: o roteador pode escolher automaticamente. O botão configurável pedido nesta sessão.</dd>
+        </div>
+        <div>
+          <dt><code>execution_boundary: "PROCESS"</code></dt>
+          <dd>Marca que um passo precisa rodar fora do processo do MRW — seja como processo filho local, seja num nó remoto do Grid. É o que impede o roteador de tentar rodar algo "in-process" quando precisa da fronteira real.</dd>
+        </div>
+        <div>
+          <dt><code>meizexgrid</code></dt>
+          <dd>A conta de sistema criada em cada Dell para o piloto SSH — sem privilégio administrativo, autenticação só por chave pública. É quem realmente executa o comando remoto, nunca a sua conta pessoal.</dd>
+        </div>
+        <div>
+          <dt>PORT_REGISTRY</dt>
+          <dd>Registro canônico de portas do ecossistema (<code>PORT_REGISTRY/localhost.md</code>), consultado antes de abrir qualquer serviço novo — inclusive o SSH de cada nó do Grid.</dd>
+        </div>
+        <div>
+          <dt>RemoteJobHandle</dt>
+          <dd>O que <code>execute_async()</code> devolve na hora: um objeto com <code>done()</code>, <code>poll()</code>, <code>wait(timeout)</code> e <code>cancel()</code> para acompanhar um job rodando em segundo plano num nó do Grid.</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section id="arquitetura">
+      <h2>Arquitetura: quem depende de quem</h2>
+      <p class="section-sub">O Grid não sabe que o MRW existe. O MRW é que aprendeu a falar com o Grid.</p>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama: MRW e um futuro orquestrador A2A consomem o Grid como infraestrutura; o Grid não depende de nenhum dos dois.">
+          <defs>
+            <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 Z" fill="var(--accent)"></path>
+            </marker>
+          </defs>
+
+          <!-- Grid layer -->
+          <rect x="60" y="190" width="780" height="80" rx="10" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"></rect>
+          <text x="86" y="216" font-family="IBM Plex Mono, monospace" font-size="12" letter-spacing="0.06em" fill="var(--accent-ink)">MEIZEX GRID — infraestrutura</text>
+          <text x="86" y="235" font-family="IBM Plex Sans, sans-serif" font-size="12.5" fill="var(--ink-soft)">descoberta · capacidade (AIR) · SSH restrito · execução remota</text>
+
+          <g font-family="IBM Plex Mono, monospace" font-size="11.5" fill="var(--ink)">
+            <rect x="90" y="242" width="90" height="24" rx="5" fill="var(--surface)" stroke="var(--line)"></rect>
+            <text x="135" y="258" text-anchor="middle">Lenovo</text>
+            <rect x="200" y="242" width="90" height="24" rx="5" fill="var(--surface)" stroke="var(--line)"></rect>
+            <text x="245" y="258" text-anchor="middle">Dell-A</text>
+            <rect x="310" y="242" width="90" height="24" rx="5" fill="var(--surface)" stroke="var(--line)"></rect>
+            <text x="355" y="258" text-anchor="middle">Dell-B</text>
+          </g>
+
+          <!-- MRW box -->
+          <rect x="60" y="40" width="330" height="100" rx="10" fill="var(--surface)" stroke="var(--line)" stroke-width="1.5"></rect>
+          <text x="86" y="66" font-family="IBM Plex Mono, monospace" font-size="12" letter-spacing="0.06em" fill="var(--amber)">MRW</text>
+          <text x="86" y="88" font-family="IBM Plex Sans, sans-serif" font-size="13" fill="var(--ink)">Router + Dispatcher</text>
+          <text x="86" y="107" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="var(--ink-soft)">decide quê/onde executar,</text>
+          <text x="86" y="123" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="var(--ink-soft)">usa RemoteSSHExecutor</text>
+
+          <!-- Future A2A box -->
+          <rect x="510" y="40" width="330" height="100" rx="10" fill="var(--surface)" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="5 4"></rect>
+          <text x="536" y="66" font-family="IBM Plex Mono, monospace" font-size="12" letter-spacing="0.06em" fill="var(--ink-faint)">FUTURO?</text>
+          <text x="536" y="88" font-family="IBM Plex Sans, sans-serif" font-size="13" fill="var(--ink)">Camada A2A</text>
+          <text x="536" y="107" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="var(--ink-soft)">outro orquestrador cliente,</text>
+          <text x="536" y="123" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="var(--ink-soft)">mesmo padrão de acesso</text>
+
+          <line x1="225" y1="140" x2="225" y2="188" stroke="var(--accent)" stroke-width="2" marker-end="url(#arrow)"></line>
+          <line x1="675" y1="140" x2="675" y2="188" stroke="var(--ink-faint)" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrow)"></line>
+        </svg>
+      </div>
+      <p>O Grid ficaria de pé mesmo se o MRW nunca tivesse sido tocado — <code>discovery.py</code> e o piloto SSH não importam nem sabem o que é um <code>ResourceExecutor</code>. Foi o MRW que ganhou um cliente novo (<code>RemoteSSHExecutor</code>) que fala com essa infraestrutura pelo protocolo dela (SSH), do mesmo jeito que qualquer outro orquestrador poderia.</p>
+    </section>
+
+    <section id="perguntas">
+      <h2>As quatro perguntas</h2>
+      <p class="section-sub">Respostas diretas, com o porquê.</p>
+
+      <div class="qa">
+        <div class="qa-q"><span class="qa-num">01</span><h3>O Grid é autônomo ou recurso do MRW?</h3></div>
+        <div class="qa-a">
+          <span class="verdict independent">Autônomo</span>
+          <p>O Grid não importa nada do MRW e não conhece o contrato <code>ResourceExecutor</code>. Ele é: rede descoberta, capacidade medida, uma conta SSH restrita por máquina. Isso funciona sozinho, testável sozinho — e foi construído e provado <em>antes</em> do MRW entrar na história (NEXT-001 a 005 não mencionam o MRW nenhuma vez).</p>
+          <p>O que existe hoje é o inverso do que a pergunta sugere: o <b>MRW é que virou dependente do Grid</b> como um dos lugares onde pode executar, através de um cliente específico (<code>RemoteSSHExecutor</code>) que fala o protocolo do Grid (SSH). Se amanhã o MRW for descontinuado, o Grid continua de pé — só perde esse cliente.</p>
+        </div>
+      </div>
+
+      <div class="qa">
+        <div class="qa-q"><span class="qa-num">02</span><h3>O MRW poderia ser aberto no GitHub, ou tem particularidades só nossas?</h3></div>
+        <div class="qa-a">
+          <span class="verdict mixed">Os dois — separáveis</span>
+          <p>O núcleo de engenharia é genuinamente genérico e bem desenhado: o padrão <code>ResourceExecutor</code>/<code>ResourceDispatcher</code>, o roteador orientado a evidência (<code>DECLARED</code> → <code>OBSERVED</code> → <code>VALIDATED</code>, nunca promovido sem prova registrada), a fronteira de processo com ambiente restrito por allowlist — nada disso é específico do MEIZEX. É o tipo de coisa que projetos de orquestração de agentes reinventam com frequência.</p>
+          <p>O acoplamento pessoal está em outro lugar: caminhos absolutos do seu usuário (<code>C:\Users\MEIZEX-ADMIN\...</code>) espalhados em código e configuração, o catálogo de modelos LM Studio específico da sua máquina, provedores como <code>chassis.py</code> feitos sob medida, e o processo Windows-first (<code>CREATE_NO_WINDOW</code>, ACLs do OpenSSH) que é uma escolha válida mas não universal.</p>
+          <p>Nada disso é <em>impeditivo</em> — é trabalho real de generalização (extrair config de caminhos hardcoded, documentar o formato do registro, decidir o que fica proprietário) antes de publicar, não uma reescrita.</p>
+        </div>
+      </div>
+
+      <div class="qa">
+        <div class="qa-q"><span class="qa-num">03</span><h3>Se o Grid puder ser independente, ele seria um CLI?</h3></div>
+        <div class="qa-a">
+          <span class="verdict independent">Sim, é a forma natural</span>
+          <p>Já tem quase todas as peças de um CLI espalhadas: <code>discovery.py</code> (descoberta), o AIR já expõe um CLI de verdade (<code>meizex-air probe</code>, ponto de entrada declarado em <code>pyproject.toml</code>), e o piloto SSH é hoje uma sequência de comandos PowerShell manuais que se repete de máquina em máquina — exatamente o tipo de coisa que vira subcomando.</p>
+          <p>Um <code>meizex-grid</code> CLI coerente teria a cara de: <code class="mono">grid discover</code>, <code class="mono">grid probe &lt;nó&gt;</code>, <code class="mono">grid pilot enable &lt;nó&gt;</code> (o que hoje fazemos manualmente — perfil, ACL, firewall), <code class="mono">grid dispatch &lt;nó&gt; -- comando</code>. Nada disso exige o MRW; é a própria fronteira que este manual descreve.</p>
+        </div>
+      </div>
+
+      <div class="qa">
+        <div class="qa-q"><span class="qa-num">04</span><h3>Um espaço A2A no Grid, como intercâmbio de orquestradores — viável? Projeto à parte?</h3></div>
+        <div class="qa-a">
+          <span class="verdict separate">Viável, mas como projeto à parte</span>
+          <p>Tecnicamente plausível: os nós do Grid já aceitam comando de qualquer chamador que tenha a chave certa — não há nada no transporte que amarre isso ao MRW especificamente. Formalizar isso com um protocolo real de troca entre agentes (A2A da Google é o padrão aberto mais conhecido nessa categoria) resolveria exatamente o problema que já apareceu nesta sessão: <b>LAB-002</b>, ainda em aberto, registra que a única forma de coordenação entre este agente e o Codex hoje é manual — copiar um arquivo de missão, colar, esperar, ler o resultado depois.</p>
+          <p>Mas não pertence dentro do <code>MEIZEX_GRID</code>. O Grid é deliberadamente só a camada de acesso — descoberta, capacidade, transporte. Um protocolo de troca entre orquestradores é uma camada <em>acima</em> disso, do mesmo jeito que o MRW é: mais um cliente consumindo o Grid, não uma peça do Grid. Colocar A2A dentro do Grid misturaria "como eu chego numa máquina" com "como dois agentes decidem o que fazer entre si" — dois problemas diferentes que já estão separados hoje por acidente e deveriam continuar separados por decisão.</p>
+        </div>
+      </div>
+
+      <div class="callout amber">
+        <p><b>Nota à parte, não é A2A:</b> o Kestra 2.0 (motor de orquestração de workflows, anunciado durante esta sessão) não resolve o mesmo problema — é um motor centralizado de <em>flows</em>, não agentes negociando entre si. Duas coisas dele valem registro: (1) "flows chamáveis como ferramenta via MCP" é o mesmo padrão que o <code>MEIZEXLF-MCP</code> já oferece no ecossistema, não A2A; (2) o modelo de <em>workers</em> desacoplados puxando de uma fila (Redis/AMQP/Kafka/JDBC, só acesso de saída) é uma alternativa de arquitetura madura ao SSH direto que o Grid usa hoje — resolveria o limite de concorrência (NEXT-010) de outro jeito, sem porta de entrada nenhuma no nó. Não é uma decisão para agora, só uma opção que existe.</p>
+      </div>
+    </section>
+    </section>
+
+    <section id="onde-esta">
+      <h2>Onde está cada arquivo</h2>
+      <p class="section-sub">Para não precisar caçar de novo.</p>
+      <table class="files">
+        <thead><tr><th>O quê</th><th>Onde</th></tr></thead>
+        <tbody>
+          <tr><td>Decisões aceitas</td><td class="path"><code>MEIZEX_GRID/DOT.md</code></td></tr>
+          <tr><td>Trabalho e resultados, item por item</td><td class="path"><code>MEIZEX_GRID/NEXT.md</code></td></tr>
+          <tr><td>Hipóteses ainda sem autoridade</td><td class="path"><code>MEIZEX_GRID/LAB.md</code></td></tr>
+          <tr><td>Relatório narrativo da sessão</td><td class="path"><code>MEIZEX_GRID/RELATORIO_SESSAO_2026-09-07.md</code></td></tr>
+          <tr><td>Descoberta de rede</td><td class="path"><code>MEIZEX_GRID/discovery.py</code></td></tr>
+          <tr><td>Snapshots de capacidade real</td><td class="path"><code>MEIZEX_GRID/air_snapshots/</code></td></tr>
+          <tr><td><code>RemoteSSHExecutor</code> (código real)</td><td class="path"><code>MEIZEX_ROUTER_WORKER/src/meizex_mrw/dispatch/executors/remote_ssh.py</code></td></tr>
+          <tr><td>Roteador (seleção automática do Grid)</td><td class="path"><code>MEIZEX_ROUTER_WORKER/src/meizex_mrw/capabilities/router.py</code></td></tr>
+          <tr><td>Testes reais, ponta a ponta (sem mock)</td><td class="path"><code>MEIZEX_GRID/test_*.py</code> (seis arquivos, um por capacidade)</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</div>
+
+<footer>
+  Manual gerado a partir do trabalho real da sessão de 2026-09-06 a 09-08 — cada afirmação aqui corresponde a um item DOT/NEXT verificável no repositório.
+</footer>
