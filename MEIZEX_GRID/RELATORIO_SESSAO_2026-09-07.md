@@ -1,4 +1,4 @@
-# Relatório final — MEIZEX Grid, sessão de 2026-09-06/07
+# Relatório final — MEIZEX Grid, sessão de 2026-09-06 a 09-08
 
 ## Objetivo da sessão
 
@@ -88,17 +88,75 @@ máquinas diferentes.
 Um bug real foi corrigido no caminho (`executor_kind` fixo em `"process"`
 em qualquer subclasse), sem regressão nos testes existentes do MRW.
 
-## Limitação conhecida, documentada e não escondida
+Na primeira versão deste relatório, o roteador de missão do MRW só
+modelava **local** ou **cloud** — sem categoria para "rede confiável,
+máquina remota" — e a seleção automática do Grid por missão ficou
+registrada como lacuna, não implementada. As próximas quatro seções
+fecham exatamente essa lacuna e as que apareceram no caminho.
 
-O roteador de missão do MRW (`capabilities/router.py`) só modela duas
-categorias de recurso: **local** ou **cloud**. Não existe uma terceira
-categoria para "rede confiável, máquina remota" — por isso a seleção
-automática de quando usar o Grid, a partir do texto de uma missão, **não
-foi implementada**. Isso exigiria estender o modelo de dados
-(`CapabilityResource.local: bool` → algo como `location: Literal["local",
-"grid","cloud"]`), uma decisão de arquitetura, não uma linha de código
-apressada. O caminho está documentado em NEXT-007 para quando isso for
-decidido.
+### 6. Despacho assíncrono (NEXT-008)
+
+Pergunta que motivou isto: "o orquestrador já consegue mandar um teste de
+estresse pro Dell-B e seguir com outros sprints?" — não, a chamada era
+bloqueante. `RemoteSSHExecutor.execute_async()` roda o `execute()`
+original (sem alteração) numa thread de fundo e devolve um
+`RemoteJobHandle` na hora. Testado contra o Dell-B: submissão em 0.6ms,
+"outro trabalho" simulado rodou 6 vezes enquanto o job real (848ms de
+latência) ainda estava em voo.
+
+### 7. Cancelamento real (NEXT-009)
+
+`RemoteJobHandle.cancel()` mata o processo SSH local, o que normalmente
+derruba o processo remoto junto (consequência observada do OpenSSH, não
+garantida por esta classe). Exigiu um gancho novo (`on_spawn`, opcional,
+aditivo) em `run_payload`/`ProcessExecutor.execute` pra expor o processo
+sem quebrar nada existente. Testado real: job cancelado termina em 54ms
+(`FAILED`), contra 932ms de um job de controle não cancelado que completa
+normalmente (`COMPLETED`).
+
+### 8. Limite de concorrência por nó (NEXT-010)
+
+Um `threading.Semaphore` por instância de `RemoteSSHExecutor` limita
+quantos jobs rodam de verdade contra aquele nó ao mesmo tempo
+(`max_concurrent`, padrão 4) — submissão continua não-bloqueante acima do
+limite. Cancelar um job ainda na fila funciona (nunca chega a abrir SSH),
+mas não fura fila: espera o slot liberar antes de checar o cancelamento.
+Testado real: 5 jobs com `max_concurrent=2` completam em ~3 "ondas" de
+round-trip real (2.53s total, no máximo 2 rodando ao mesmo tempo
+observado).
+
+### 9. Roteador escolhe o Grid sozinho, configurável (NEXT-011)
+
+Pedido explícito: "deixa configurável — automático ou à decisão do
+usuário/orquestrador". Resolvido estendendo o modelo de dados de forma
+aditiva (nada existente muda de comportamento):
+
+- `CapabilityResource.location: "local" | "grid" | "cloud" | None` — novo
+  campo opcional; `None` (todo recurso já cadastrado) preserva o
+  comportamento antigo exatamente.
+- `ExecutionProfile.grid_allowed: bool = False` — o botão pedido. `False`
+  (padrão) = Grid nunca escolhido sozinho, decisão manual como antes.
+  `True` = o roteador pode escolher automaticamente. Mesmo padrão que
+  `cloud_allowed` já usava.
+- Dell-B registrado honestamente no `local_capability_registry.json` do
+  MRW, com `status: "AVAILABLE"` (evidência **OBSERVED**, não
+  `VALIDATED` — uma prova de conceito manual não é uma suíte de
+  validação).
+
+Suíte completa do MRW rodada antes de prosseguir: **545 testes passaram, 5
+pulados, 0 falhas**.
+
+Teste real, sem mock, fechando o ciclo inteiro: `route("some os valores
+do json e agrupe por categoria")` sem autorização nunca escolhe o Grid
+(excluído com `"grid_forbidden"`); com `profile.grid_allowed=True`, o
+roteador **escolhe o Dell-B sozinho**, só a partir do texto da missão — e
+o resultado real (não montado à mão) foi despachado com sucesso contra o
+Dell-B, PID remoto confirmado.
+
+Achado colateral registrado, não escondido: o planejador determinístico
+do MRW (`InvocationResolver`) ainda não sabe montar a invocação pra
+capacidades de fronteira `PROCESS` além das duas que já conhecia — lacuna
+separada, pré-existente, não resolvida nesta sessão.
 
 ## Estado final do Grid
 
@@ -106,19 +164,29 @@ decidido.
 - Código sincronizado via git privado entre as três.
 - Execução remota real e testada nas duas Dell via SSH, com conta
   restrita e firewall travado.
-- MRW com um caminho real (não teórico) de execução remota, com
-  roteamento por recurso funcionando na camada de despacho.
-- Lacuna de design conhecida e registrada para a seleção automática por
-  missão — não é um "TODO" vago, é uma decisão específica com o porquê
-  explicado.
+- MRW com um caminho real (não teórico) de execução remota: síncrono
+  (despacho normal), assíncrono (não bloqueia o chamador), cancelável,
+  com limite de concorrência por nó, e com **seleção automática
+  configurável** — o roteador escolhe o Grid sozinho quando autorizado
+  por perfil, e nunca quando não.
+- Nenhuma lacuna da lista original ficou sem resposta: as quatro
+  perguntas em aberto ao fim da primeira versão deste relatório
+  (despacho assíncrono, cancelamento, limite de concorrência, seleção
+  automática) foram implementadas e testadas de verdade, não só
+  documentadas como "próximo passo".
 
 ## Onde encontrar tudo
 
 - Repositório: https://github.com/Renato-RVF/meizex-grid
 - Decisões aceitas: `MEIZEX_GRID/DOT.md`
 - Trabalho autorizado e resultado de cada item: `MEIZEX_GRID/NEXT.md`
-  (NEXT-001 a NEXT-007)
+  (NEXT-001 a NEXT-011)
 - Hipóteses e investigações: `MEIZEX_GRID/LAB.md`
 - Evidências de capacidade e execução remota: `MEIZEX_GRID/air_snapshots/`
-- Testes reais de integração MRW: `MEIZEX_GRID/test_remote_ssh_executor.py`
-  e `MEIZEX_GRID/test_dispatcher_remote_ssh_routing.py`
+- Testes reais de integração MRW:
+  `MEIZEX_GRID/test_remote_ssh_executor.py`,
+  `MEIZEX_GRID/test_dispatcher_remote_ssh_routing.py`,
+  `MEIZEX_GRID/test_remote_ssh_async.py`,
+  `MEIZEX_GRID/test_remote_ssh_cancel.py`,
+  `MEIZEX_GRID/test_remote_ssh_concurrency.py`,
+  `MEIZEX_GRID/test_router_grid_auto_selection.py`
