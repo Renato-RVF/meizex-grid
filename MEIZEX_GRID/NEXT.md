@@ -169,6 +169,18 @@ pedia — "chave privada protegida por passphrase"); aceitável para este
 piloto de investigação, mas deve ser revisto antes de qualquer uso além de
 teste pontual.
 
+Limpeza técnica pós-piloto (2026-09-07): a tentativa de forçar a criação do
+perfil real via `runas` falhou repetidamente (senha digitada às cegas no
+console não era aceita); a solução via tarefa agendada exigiu conceder
+temporariamente o direito "logon em lote" (`SeBatchLogonRight`) à conta
+`meizexgrid` através de `secedit`. Revertido depois do piloto concluído —
+confirmado por export do `secedit` que `meizexgrid` não aparece mais nesse
+direito, restando só os grupos padrão do Windows (Administradores,
+Operadores de Backup, Operadores de Servidor). Arquivos temporários
+(`secpol*.cfg`, `secedit*.sdb`, `sshd_debug_a.log`) removidos do Dell-A;
+logs de debug (`sshd_debug*.log`) removidos do Dell-B. Nenhuma tarefa
+agendada residual em nenhuma das duas máquinas.
+
 ## NEXT-005 — Piloto de OpenSSH no Dell-B (aprovado pelo usuário, em paralelo ao Dell-A)
 
 SOURCE: NEXT-004
