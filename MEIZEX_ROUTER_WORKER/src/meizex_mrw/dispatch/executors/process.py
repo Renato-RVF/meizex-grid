@@ -17,6 +17,8 @@ from __future__ import annotations
 import sys
 import time
 import uuid
+import subprocess
+from collections.abc import Callable
 from typing import Any
 
 from meizex_mrw.capabilities.executor_compat import process_compatible
@@ -76,7 +78,17 @@ class ProcessExecutor(ResourceExecutor):
         # harden: resolution stays required to preserve current behavior.
         return True
 
-    def execute(self, request: ResourceExecutionRequest) -> ResourceExecutionResult:
+    def execute(
+        self,
+        request: ResourceExecutionRequest,
+        *,
+        on_spawn: Callable[[subprocess.Popen[str]], None] | None = None,
+    ) -> ResourceExecutionResult:
+        # on_spawn is optional and additive: the ResourceDispatcher's
+        # synchronous step loop never passes it, so behavior there is
+        # unchanged. It exists for a caller running this in the background
+        # (RemoteSSHExecutor.execute_async) that needs a killable handle to
+        # the process -- see RemoteJobHandle.cancel().
         started = time.perf_counter()
         args = (request.step.invocation.arguments if request.step.invocation else {}) or {}
         payload: dict[str, Any] = {
@@ -92,6 +104,7 @@ class ProcessExecutor(ResourceExecutor):
             payload,
             timeout_s=timeout,
             extra_env=self._extra_env,
+            on_spawn=on_spawn,
         )
         latency_ms = round((time.perf_counter() - started) * 1000, 3)
 

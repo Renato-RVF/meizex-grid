@@ -27,8 +27,9 @@ a direct return, not a future. ``execute_async`` is an additive capability
 for callers OUTSIDE the dispatcher's synchronous step loop (e.g. an
 orchestrator that wants to hand a heavy job to the Grid and keep working):
 it runs the exact same ``execute()`` on a background thread and returns a
-:class:`RemoteJobHandle` immediately. A thread (not asyncio) is the
-pragmatic choice here because the underlying transport is a blocking
+:class:`RemoteJobHandle` immediately, with :meth:`RemoteJobHandle.cancel`
+able to kill the in-flight local ssh process. A thread (not asyncio) is
+the pragmatic choice here because the underlying transport is a blocking
 ``subprocess.Popen(...).communicate()`` call in
 :mod:`meizex_mrw.dispatch.process_boundary` — moving to asyncio would mean
 rewriting that transport, a bigger change than this milestone claims.
@@ -36,6 +37,7 @@ rewriting that transport, a bigger change than this milestone claims.
 
 from __future__ import annotations
 
+import subprocess
 import threading
 
 from meizex_mrw.capabilities.models import ExecutionStep
@@ -49,24 +51,35 @@ class RemoteJobHandle:
 
     ``execute_async`` returns this immediately; the SSH round-trip keeps
     running in the background. The caller can do other work and later
-    check :meth:`done`/:meth:`poll` (non-blocking) or :meth:`wait`
-    (blocking, with an optional timeout).
+    check :meth:`done`/:meth:`poll` (non-blocking), :meth:`wait` (blocking,
+    with an optional timeout), or :meth:`cancel` an in-flight job.
 
-    THIS DOES NOT CLAIM cancellation: there is no ``cancel()``. If nobody
-    ever calls ``wait()``/``poll()`` again, the background thread still
-    runs to completion (or to the request's own ``timeout_s``) — it is
-    daemonic, so it will not block process exit, but it is not stoppable
-    from here. Killing an in-flight remote job is future work.
+    Cancellation kills the LOCAL ssh client process. That tears down the
+    SSH connection, which normally makes the remote sshd terminate the
+    remote python process too (its stdin/stdout pipe closes) — but this is
+    an observed consequence of how OpenSSH behaves, not a guarantee this
+    class enforces or verifies. A remote process that ignores a closed
+    pipe would keep running on the Grid node with nothing here to detect
+    or stop it; that residual risk is not solved by this milestone.
     """
 
     def __init__(self, request: ResourceExecutionRequest) -> None:
         self.request = request
         self._done = threading.Event()
         self._result: ResourceExecutionResult | None = None
+        self._proc_lock = threading.Lock()
+        self._proc: subprocess.Popen[str] | None = None
+        self._cancelled = False
 
     def done(self) -> bool:
         """Non-blocking: True once the background job has a result."""
         return self._done.is_set()
+
+    @property
+    def cancelled(self) -> bool:
+        """True if cancel() was called on this handle (whether or not the
+        kill actually landed before the job finished on its own)."""
+        return self._cancelled
 
     def poll(self) -> ResourceExecutionResult | None:
         """Non-blocking: the result if finished, else None."""
@@ -88,6 +101,31 @@ class RemoteJobHandle:
             )
         assert self._result is not None
         return self._result
+
+    def cancel(self) -> bool:
+        """Kill the local ssh process for this job, if it is still running.
+
+        Returns True if a kill signal was actually sent (the job was still
+        in flight and the ssh process had already been captured), False
+        otherwise (already finished, or the process was not spawned yet —
+        there is a narrow window right after execute_async() starts the
+        thread where Popen has not run yet; call cancel() again if that
+        matters, or accept the job runs in that case).
+        """
+        self._cancelled = True
+        with self._proc_lock:
+            proc = self._proc
+        if proc is None or self._done.is_set():
+            return False
+        try:
+            proc.kill()
+        except OSError:
+            return False
+        return True
+
+    def _capture_proc(self, proc: subprocess.Popen[str]) -> None:
+        with self._proc_lock:
+            self._proc = proc
 
     def _finish(self, result: ResourceExecutionResult) -> None:
         self._result = result
@@ -168,7 +206,7 @@ class RemoteSSHExecutor(ProcessExecutor):
         handle = RemoteJobHandle(request)
 
         def _run() -> None:
-            handle._finish(self.execute(request))
+            handle._finish(self.execute(request, on_spawn=handle._capture_proc))
 
         thread = threading.Thread(
             target=_run,

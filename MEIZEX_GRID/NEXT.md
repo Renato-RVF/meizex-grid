@@ -3,6 +3,50 @@
 Escopo atual de execução. Itens aqui podem ser implementados/estendidos; nada
 fora daqui é implementação autorizada — apenas descoberta/proposta.
 
+## NEXT-009 — Cancelamento real de job assíncrono no RemoteSSHExecutor
+
+Decorrente de NEXT-008: sem cancelamento, um job assíncrono travado (ex.:
+timeout mal configurado, máquina alvo travando) não tinha como ser
+interrompido a partir do handle.
+
+Implementado `RemoteJobHandle.cancel()`: mata o processo SSH **local**
+(`proc.kill()`). Isso derruba a conexão SSH, o que normalmente faz o sshd
+remoto encerrar o processo Python remoto também (o pipe stdin/stdout dele
+fecha) — mas essa é uma consequência observada do comportamento do
+OpenSSH, não uma garantia que esta classe verifica ou impõe. Um processo
+remoto que ignorasse o pipe fechado continuaria rodando no nó do Grid sem
+nada aqui para detectar ou parar isso — risco residual documentado, não
+resolvido.
+
+Mudança de infraestrutura necessária (aditiva, sem quebrar nada existente):
+`process_boundary.run_payload()` ganhou um parâmetro opcional `on_spawn`
+(callback chamado com o `Popen` assim que ele nasce, antes do
+`communicate()` bloquear) — é o único jeito de expor o processo pro
+`RemoteJobHandle` capturar, já que ele fica só na pilha local da função.
+`ProcessExecutor.execute()` ganhou o mesmo parâmetro opcional, repassado.
+Testes existentes rodados sem regressão
+(`test_milestone9_process_boundary.py`, `test_dispatcher.py`,
+`test_executor_aware_resolution.py`, 35 passaram).
+
+Teste real (`MEIZEX_GRID/test_remote_ssh_cancel.py`), contra o Dell-B, sem
+mock: job cancelado ~50ms após submissão terminou em 54ms com
+`status: FAILED` (bem menos que o round-trip normal); job de controle
+(mesmo executor, não cancelado) completou normalmente em 932ms com
+`status: COMPLETED` — prova que `cancel()` corta de verdade e não deixa o
+executor quebrado para chamadas seguintes.
+
+Limitação explícita: existe uma janela de corrida — se `cancel()` for
+chamado antes do `Popen` local do SSH nascer (não deveria acontecer na
+prática, spawn é quase instantâneo, mas não há garantia formal), o método
+retorna `False` e o job continua. Chamar `cancel()` de novo resolve.
+
+SCOPE: MEIZEX_ROUTER_WORKER/src/meizex_mrw/dispatch/process_boundary.py,
+MEIZEX_ROUTER_WORKER/src/meizex_mrw/dispatch/executors/process.py,
+MEIZEX_ROUTER_WORKER/src/meizex_mrw/dispatch/executors/remote_ssh.py,
+MEIZEX_GRID/test_remote_ssh_cancel.py
+
+STATUS: concluído em 2026-09-08.
+
 ## NEXT-008 — Despacho assíncrono no RemoteSSHExecutor
 
 Decorrente de conversa direta: "o orquestrador já consegue mandar um teste

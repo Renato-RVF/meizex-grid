@@ -23,6 +23,7 @@ from __future__ import annotations
 import json
 import os
 import subprocess
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any, Literal
 
@@ -113,6 +114,7 @@ def run_payload(
     timeout_s: float,
     cwd: str | None = None,
     extra_env: dict[str, str] | None = None,
+    on_spawn: Callable[[subprocess.Popen[str]], None] | None = None,
 ) -> ProcessBoundaryOutcome:
     """Run ``command`` as a child process with an explicit environment.
 
@@ -122,6 +124,13 @@ def run_payload(
     (spawn failure, timeout, non-zero exit, malformed transport) is returned
     as a structured :class:`ProcessBoundaryOutcome` — it never raises, so a
     failing child can never take down the parent.
+
+    ``on_spawn`` (optional): called with the live ``Popen`` right after a
+    successful spawn, before ``communicate()`` blocks. This is the hook a
+    caller running this on a background thread (see
+    ``RemoteSSHExecutor.execute_async``) uses to capture a killable handle
+    to the process — there is no other way to reach it, since everything
+    else here is local to this function's stack frame.
     """
     env = build_child_environment(extra_env)
     proc: subprocess.Popen[str] | None = None
@@ -143,6 +152,9 @@ def run_payload(
             status="SPAWN_FAILURE",
             error=f"failed to spawn child process: {exc}",
         )
+
+    if on_spawn is not None:
+        on_spawn(proc)
 
     pid = proc.pid
     input_text = json.dumps(payload, ensure_ascii=False) + "\n"
