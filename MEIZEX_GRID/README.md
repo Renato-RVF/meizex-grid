@@ -1,58 +1,69 @@
 # MEIZEX Grid
 
-Status: retomada em definição; nenhuma execução distribuída implementada.
+A small, real, working distributed execution layer: three home-network
+Windows machines, reachable over SSH, dispatching real work from the
+[MEIZEX Router Worker](../MEIZEX_ROUTER_WORKER/README.md)'s Capability
+Router — asynchronously, cancellably, concurrency-limited per node, and
+now monitored for early failure signs (see STATEWATCH in the MRW README).
 
-## Objetivo
+Not a framework, not a product — infrastructure built solo to actually
+use, documented as it was built.
 
-Disponibilizar as três máquinas da rede como recursos de execução para o
-MEIZEX Router Worker (MRW), começando pela descoberta verificável da rede.
+## What's real today
 
-## Decisões de partida
+- **Real SSH dispatch.** `RemoteSSHExecutor` runs a capability on a
+  named Grid node over SSH, same JSON-on-stdin/stdout transport as
+  local execution — only the spawned command differs.
+- **Async, not just blocking.** `execute_async()` hands back a
+  `RemoteJobHandle` immediately: `done()`/`poll()` (non-blocking),
+  `wait(timeout)` (blocking), `cancel()` (kills the in-flight ssh
+  process for real).
+- **Per-node concurrency limits.** Each `RemoteSSHExecutor` gates how
+  many jobs actually run against its node at once; extras queue without
+  ever blocking the caller.
+- **The router chooses the Grid on its own — when told it's allowed
+  to.** `ExecutionProfile.grid_allowed` is an explicit opt-in; nothing
+  gets dispatched to a remote node just because it exists.
+- **Early failure warning, not just eventual timeout.** STATEWATCH
+  compares a job's expected phase against its observed phase and flags
+  divergence before the real kill — see the MRW README for the full
+  story.
 
-- A interface desktop do Grid será construída com Tkinter, seguindo a tecnologia
-  do app REDE. As operações de rede devem rodar fora da thread da interface,
-  com resultados encaminhados à interface por fila e atualizações via after().
+All of it verified against real machines on the author's own network,
+not mocked — see [`NEXT.md`](NEXT.md) for the dated, evidence-linked
+record of each milestone (SSH pilot setup, async dispatch, cancellation,
+concurrency limits, auto-selection, the Windows-specific operational
+gotchas that came with running sshd as a service).
 
-- MRW é o motor de roteamento e execução. Avaliar seus contratos existentes
-  antes de criar coordenação, dispatch ou persistência adicionais.
-- Ollama foi desinstalado e LM Studio foi substituído por llama.cpp e runtimes
-  relacionados. Referências antigas não comprovam serviços ativos.
-- Preservar o app independente C:/PROJETOS/REDE como referência funcional.
-- Comparar REDE com MEIZEX_PIP/meizex-network-discovery antes de implementar
-  outra descoberta. Presença no disco não comprova funcionamento.
-- Consultar PORT_REGISTRY/check_port.py e manter localhost.md atualizado antes
-  de atribuir qualquer porta. Nenhuma porta está atribuída a este projeto.
-- Os projetos anteriores MEIZEX_COMPUTER_GRID e MEIZEX_GRID_CORE foram removidos;
-  sua existência histórica não implica código ou integração disponível.
+## How the pieces fit
 
-## Primeira entrega proposta
+```
+MRW Capability Router
+   │  (ExecutionProfile.grid_allowed = true)
+   ▼
+RemoteSSHExecutor  ──ssh──▶  a Grid node
+   │
+   ├─ execute_async() → RemoteJobHandle (poll / wait / cancel)
+   └─ STATEWATCH polls the handle's residual while waiting,
+      emits StepDivergence with real lead time before any kill
+```
 
-Identificar as três máquinas por observações atuais de rede, apresentando
-identidade conhecida, endereços, origem da observação e instante da coleta.
-Distinguir dispositivo observado, serviço acessível e capacidade de execução
-comprovada. Não declarar uma máquina ausente apenas porque não respondeu a ping.
+## Reference manual
 
-Critério de aceitação: as três máquinas são identificadas em uma verificação
-real e os casos de ausência de resposta ou identificação incerta são explícitos.
-Disponibilidade do worker será verificada separadamente.
+[`manual_grid_mrw.html`](manual_grid_mrw.html) — glossary, architecture,
+and direct answers to the four questions that came up building this:
+is the Grid autonomous or an MRW-only feature, could MRW be a
+general-purpose CLI, could the Grid be independent, and whether an
+A2A-style exchange space between orchestrators would make sense (it
+led to [`meizex-a2a`](https://github.com/Renato-RVF/meizex-a2a)).
 
-## Investigação antes da implementação
+## Decision record
 
-1. Comparar os dois componentes de descoberta existentes.
-2. Verificar os contratos de capabilities e dispatch do MRW.
-3. Examinar AIR, GGUF Formula e PORT_REGISTRY como fontes complementares.
-4. Avaliar transporte remoto, identidade do worker e recuperação de falhas
-   apenas depois da descoberta básica comprovada.
+This project follows a DOT/NEXT/LAB discipline: [`DOT.md`](DOT.md) is
+accepted architectural decisions, [`NEXT.md`](NEXT.md) is authorized
+work and its real results, [`LAB.md`](LAB.md) is open hypotheses. They
+are the actual history — narrower summaries above should defer to them.
 
-## Fontes
+## License
 
-- ../ARCHITECTURE.md: histórico de decisões; cruzar correções posteriores.
-- ../MEIZEX_ROUTER_WORKER: motor atual; confirmar comportamento no código.
-- C:/PROJETOS/REDE/network_mapper.py: app independente de descoberta.
-- ../MEIZEX_PIP/meizex-network-discovery: candidato a reaproveitamento.
-- ../PORT_REGISTRY: alocação de portas e monitoramento local.
-- ../.meizex_forensics/jobs/89bbcbe4b387/forensics_report.md: inventário parcial.
-
-O inventário de C: não cobre os componentes migrados para D:. Resultados de
-testes históricos não substituem validação atual das integrações escolhidas.
-
+MIT — see [LICENSE](../LICENSE).
